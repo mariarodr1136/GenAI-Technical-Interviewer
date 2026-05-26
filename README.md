@@ -16,10 +16,7 @@ Live Application: Coming soon
 
 ---
 
-### Screenshots
-
-
-
+<img width="1465" height="792" alt="Screenshot 2026-05-26 at 3 29 04 PM" src="https://github.com/user-attachments/assets/b631b289-815b-4bdb-a640-a944b5b1eca9" />
 
 ---
 
@@ -135,6 +132,13 @@ Live Application: Coming soon
 The Express backend runs on http://localhost:8080.
 
 ---
+
+
+https://github.com/user-attachments/assets/bc081428-720f-4b65-814d-6639dac8c18d
+
+
+---
+
 
 ### Project Structure
 
