@@ -10,9 +10,9 @@ The ultimate goal is to help aspiring software engineers practice **problem-solv
 
 ---
 
-Live Application: Coming soon
+Live Application: https://genai-technical-interviewer-1.onrender.com/
 
-*Note: This project is currently configured for local development. Groq usage depends on your Groq account limits, and the browser handles TTS locally through `window.speechSynthesis`. Keep your Groq API key on the backend only.*
+*Note: The live application is hosted on Render’s free tier, so the backend may take up to a minute to wake up after a period of inactivity. If the first interview request feels slow, please give the server a moment to start. Groq usage depends on account limits, and the browser handles TTS locally through `window.speechSynthesis`.*
 
 ---
 
