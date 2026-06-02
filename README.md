@@ -16,7 +16,9 @@ Live Application: https://genai-technical-interviewer-1.onrender.com/
 
 ---
 
-<img width="1465" height="792" alt="Screenshot 2026-05-26 at 3 29 04 PM" src="https://github.com/user-attachments/assets/b631b289-815b-4bdb-a640-a944b5b1eca9" />
+
+https://github.com/user-attachments/assets/7d8fed9a-4ad0-401d-a7a1-8e8253cdaaa3
+
 
 ---
 
@@ -147,9 +149,10 @@ The Express backend runs on http://localhost:8080.
 
 ---
 
+<img width="1459" height="794" alt="Screenshot 2026-06-02 at 5 44 22 PM" src="https://github.com/user-attachments/assets/5ab8d632-96b6-4b08-8d29-d1aa7cd6ab46" />
 
-https://github.com/user-attachments/assets/bc081428-720f-4b65-814d-6639dac8c18d
 
+<img width="1461" height="785" alt="Screenshot 2026-06-02 at 5 44 37 PM" src="https://github.com/user-attachments/assets/4b438fee-346f-4427-9a17-ea04ab72d7c3" />
 
 ---
 
