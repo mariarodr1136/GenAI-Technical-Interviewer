@@ -12,11 +12,11 @@ The ultimate goal is to help aspiring software engineers practice **problem-solv
 
 Live Application: https://genai-technical-interviewer-1.onrender.com/
 
-*Note: The live application is hosted on Render’s free tier, so the backend may take up to a minute to wake up after a period of inactivity. If the first interview request feels slow, please give the server a moment to start. Groq usage depends on account limits, and the browser handles TTS locally through `window.speechSynthesis`.*
+*Note: The live application is hosted on Render's free tier, so the backend may take up to a minute to wake up after a period of inactivity. If the first interview request feels slow, please give the server a moment to start. Groq usage depends on account limits, and the browser handles TTS locally through `window.speechSynthesis`.*
 
 ---
 
-<img width="1465" height="792" alt="Screenshot 2026-05-26 at 3 29 04 PM" src="https://github.com/user-attachments/assets/b631b289-815b-4bdb-a640-a944b5b1eca9" />
+<img width="1465" height="792" alt="Screenshot 2026-05-26 at 3 29 04 PM" src="https://github.com/user-attachments/assets/b631b289-815b-4bdb-a640-a944b5b1eca9" />
 
 ---
 
@@ -38,17 +38,28 @@ Live Application: https://genai-technical-interviewer-1.onrender.com/
 ### Features:
 
 - **Voice Interview Flow**: Answer interview prompts using your microphone
+- **Text Input Fallback**: Switch to typed answers for silent environments or accessibility needs
+- **Topic Selector**: Choose a focus area — General, Algorithms, System Design, Frontend, Backend, or Behavioral
+- **Difficulty Selector**: Set the question level — Easy, Medium, or Hard
 - **Microphone Permission Handling**: Clean browser permission flow using `getUserMedia`
 - **Audio Recording**: Captures user responses with the native `MediaRecorder` API
+- **Recording Timer**: Displays elapsed recording time in the control panel
+- **Audio Level Visualizer**: Live microphone amplitude bar via the Web Audio API while recording
 - **Groq Whisper Transcription**: Sends recorded audio to Groq's Whisper Large v3 model
 - **AI Interviewer Brain**: Uses Groq Llama 3 70B to generate technical follow-up questions
 - **Browser Text-to-Speech**: Reads interviewer responses aloud with `window.speechSynthesis`
+- **Auto-Start Mode**: Automatically begins recording after the interviewer finishes speaking
+- **Session Debrief**: End-of-session AI summary with strengths, areas to improve, topics covered, and a readiness rating
+- **Scrollable Conversation Log**: Full interview history displayed in a chat-style panel with auto-scroll
+- **Dynamic Status Signals**: Live indicators for mic, Groq STT, Llama 70B, and Browser TTS — each reflects actual runtime state
 - **Conversation Context**: Sends recent candidate/interviewer turns to preserve interview flow
 - **Strict Interview Persona**: Engineering-manager prompt focused on fundamentals and reasoning
-- **Banned-Word Guard**: Backend sanitizer enforces the forbidden response terms required by the project
+- **Dynamic Prompt System**: System prompt is built per session from the selected topic and difficulty
+- **Banned-Word Guard**: Backend sanitizer enforces forbidden response terms
+- **Rate Limiting**: API requests are capped at 30 per 15-minute window per IP to protect the Groq key
 - **Clean Modular Backend**: Routes, controllers, services, middleware, prompt, and config are separated
 - **Free-Tier Friendly Architecture**: No paid TTS service, no database requirement, and minimal server footprint
-- **Portfolio-Ready UI**: Polished interview control panel, status indicators, transcript area, and voice controls
+- **Portfolio-Ready UI**: Polished interview control panel, settings bar, conversation log, and debrief modal
 
 ---
 
@@ -59,6 +70,7 @@ Live Application: https://genai-technical-interviewer-1.onrender.com/
 - **Vite** (fast local development and production builds)
 - **JavaScript (ES6+)** (modern async browser APIs)
 - **MediaRecorder API** (records candidate audio in the browser)
+- **Web Audio API** (real-time microphone level visualization)
 - **Web Speech API** (native text-to-speech playback)
 - **Lucide React** (clean UI icons for interview controls)
 - **CSS** (responsive layout, status states, and interview dashboard styling)
@@ -66,6 +78,7 @@ Live Application: https://genai-technical-interviewer-1.onrender.com/
 #### Backend (API + AI Orchestration)
 - **Node.js** (JavaScript runtime)
 - **Express** (REST API and middleware pipeline)
+- **express-rate-limit** (per-IP request throttling on all `/api` routes)
 - **Multer** (multipart audio upload handling)
 - **Groq SDK** (speech-to-text and LLM API calls)
 - **dotenv** (environment-based configuration)
@@ -73,8 +86,9 @@ Live Application: https://genai-technical-interviewer-1.onrender.com/
 
 #### AI & Speech Layer
 - **Groq Whisper Large v3** (speech-to-text transcription)
-- **Groq Llama 3 70B** (technical interviewer reasoning)
-- **Prompt Engineering** (strict engineering-manager interview persona)
+- **Groq Llama 3 70B** (technical interviewer reasoning and session debrief)
+- **Dynamic Prompt Engineering** (per-session system prompt built from topic + difficulty)
+- **JSON Mode** (structured debrief output via `response_format: json_object`)
 - **Response Sanitization** (server-side lexical guard before returning speech text)
 
 #### Deployment & DevOps
@@ -150,8 +164,8 @@ GenAI Technical Interviewer/
 │   └── src/
 │       ├── lib/
 │       │   ├── recorder.js         # MediaRecorder MIME helpers
-│       │   └── speech.js           # Browser speech synthesis helpers
-│       ├── App.jsx                 # Main voice interview UI
+│       │   └── speech.js           # Browser speech synthesis helpers (onStart/onEnd callbacks)
+│       ├── App.jsx                 # Main interview UI — voice, text, history, debrief
 │       ├── main.jsx                # React entry point
 │       └── styles.css              # Responsive interface styling
 │
@@ -161,19 +175,19 @@ GenAI Technical Interviewer/
 │       ├── config/
 │       │   └── env.js              # Environment validation
 │       ├── controllers/
-│       │   └── interviewController.js
+│       │   └── interviewController.js  # Handles voice turn, text turn, and debrief
 │       ├── middleware/
 │       │   ├── errorHandler.js     # API error responses
 │       │   └── upload.js           # Audio upload configuration
 │       ├── prompts/
-│       │   └── interviewerPrompt.js
+│       │   └── interviewerPrompt.js    # Dynamic prompt builder (topic + difficulty)
 │       ├── routes/
-│       │   └── interviewRoutes.js
+│       │   └── interviewRoutes.js  # /turn, /text-turn, /debrief
 │       ├── services/
-│       │   └── groqService.js      # Groq STT + LLM calls
+│       │   └── groqService.js      # Groq STT, LLM reply, and debrief summary
 │       ├── utils/
 │       │   └── responseSanitizer.js
-│       └── index.js                # Express app entry
+│       └── index.js                # Express app entry + rate limiting
 │
 ├── package.json                    # npm workspace scripts
 ├── package-lock.json               # Locked dependency versions
@@ -187,25 +201,36 @@ GenAI Technical Interviewer/
 
 | Component | What It Covers |
 |---|---|
-| **Voice Capture UI** | Microphone access, recording controls, mute toggle, reset flow |
+| **Settings Bar** | Topic and difficulty selectors (locked once session starts); auto-start toggle |
+| **Voice Capture UI** | Microphone access, recording controls, timer, audio level bar, mute toggle |
+| **Text Input Mode** | Textarea fallback that skips STT and submits typed answers directly |
 | **Recording Helper** | Browser MIME-type detection and upload file extension handling |
-| **Interview API Route** | `POST /api/interview/turn` multipart audio request |
+| **Interview API Route** | `POST /api/interview/turn` — multipart audio upload |
+| **Text Turn Route** | `POST /api/interview/text-turn` — JSON body, no audio required |
+| **Debrief Route** | `POST /api/interview/debrief` — returns structured session feedback as JSON |
 | **Transcription Service** | Streams uploaded audio to Groq Whisper Large v3 |
 | **LLM Interview Service** | Sends transcript and recent history to Groq Llama 3 70B |
-| **System Prompt** | Engineering-manager interview behavior and strict response constraints |
-| **Response Sanitizer** | Final backend check before returning interviewer text |
-| **Browser TTS Helper** | Converts returned text into spoken audio with `speechSynthesis` |
+| **Dynamic Prompt Builder** | Builds the system prompt from selected topic and difficulty per session |
+| **Debrief Service** | Calls Groq with `json_object` mode to produce structured session feedback |
+| **Response Sanitizer** | Final backend lexical check before returning interviewer text |
+| **Browser TTS Helper** | `speakText(text, { onStart, onEnd })` — drives speaking state and auto-start flow |
+| **Conversation Log** | Scrollable full-session history with auto-scroll on new turns |
+| **Debrief Modal** | Shown on reset — displays readiness rating, strengths, improvements, and topics |
+| **Rate Limiter** | `express-rate-limit` middleware — 30 requests per 15-minute window per IP |
 
 ---
 
 ### 🧭 Experience & UI
 
-- **Voice-first interview layout** with clear start/stop controls
-- **Status indicators** for microphone, Groq STT, Llama 70B, and browser TTS
-- **Candidate transcript panel** for reviewing what Whisper detected
-- **Interviewer response panel** for reading the generated follow-up
+- **Topic and difficulty selectors** at the top of the session, locked once the interview begins
+- **Auto-start toggle** to keep the flow moving — mic fires automatically after TTS finishes
+- **Voice-first interview layout** with clear start/stop controls and elapsed recording timer
+- **Live audio level bar** so the candidate can confirm the microphone is picking up their voice
+- **Dynamic status indicators** — each signal (Mic, Groq STT, Llama 70B, Browser TTS) reflects actual runtime state rather than always showing green
+- **Scrollable conversation log** showing the full interview history in a chat-style panel
+- **Text input mode** toggled via a button — useful for quiet environments or accessibility
+- **Session debrief modal** on reset — AI-generated readiness rating, topics covered, strengths, and areas to improve
 - **Mute control** for silent practice sessions
-- **Reset control** for starting a fresh interview flow
 - **Responsive design** for desktop and mobile screens
 - **Calm dashboard styling** designed for repeated practice sessions
 
@@ -216,12 +241,14 @@ GenAI Technical Interviewer/
 For local demos and portfolio walkthroughs:
 
 - **Start the app locally** with `npm run dev`
+- **Choose a topic and difficulty** in the settings bar (e.g., Algorithms / Medium)
 - **Allow microphone access** when the browser prompts you
 - **Click Start** and answer a technical question aloud
 - **Click Stop** to send the recording to the backend
-- **Review the transcript** generated by Groq Whisper
+- **Review the transcript** generated by Groq Whisper in the conversation log
 - **Listen to the AI interviewer response** through browser TTS
 - **Continue the interview** with follow-up turns
+- **Click End & Debrief** when finished to see a structured session summary
 
 Suggested demo question to answer aloud:
 
@@ -234,6 +261,8 @@ Walk me through how you would check whether a string has balanced parentheses.
 ### 📝 API Documentation
 
 This section describes how the React frontend communicates with the Express backend.
+
+> **Rate limit:** All `/api` routes are limited to **30 requests per 15-minute window** per IP address.
 
 ---
 
@@ -258,7 +287,7 @@ GET /health
 
 ---
 
-## 2. Interview Turn
+## 2. Voice Interview Turn
 
 ```bash
 POST /api/interview/turn
@@ -269,13 +298,17 @@ Content-Type: multipart/form-data
 |---|---|---|---|
 | `audio` | File | Yes | Browser-recorded audio file, usually `.webm` |
 | `history` | JSON string | No | Recent `{ role, content }` conversation messages |
+| `topic` | string | No | Interview topic (e.g. `algorithms`, `system-design`) |
+| `difficulty` | string | No | Difficulty level (`easy`, `medium`, `hard`) |
 
 ### Sample Request
 
 ```bash
 curl -X POST http://localhost:8080/api/interview/turn \
   -F "audio=@candidate-answer.webm" \
-  -F 'history=[]'
+  -F 'history=[]' \
+  -F 'topic=algorithms' \
+  -F 'difficulty=medium'
 ```
 
 <details>
@@ -292,7 +325,84 @@ curl -X POST http://localhost:8080/api/interview/turn \
 
 ---
 
-## 3. Environment Variables
+## 3. Text Interview Turn
+
+```bash
+POST /api/interview/text-turn
+Content-Type: application/json
+```
+
+Accepts a typed answer directly — no audio upload or STT step required.
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `text` | string | Yes | Candidate's typed answer |
+| `history` | JSON string | No | Recent `{ role, content }` conversation messages |
+| `topic` | string | No | Interview topic |
+| `difficulty` | string | No | Difficulty level |
+
+### Sample Request
+
+```bash
+curl -X POST http://localhost:8080/api/interview/text-turn \
+  -H "Content-Type: application/json" \
+  -d '{"text": "I would use a hash map to count character frequencies.", "history": "[]", "topic": "algorithms", "difficulty": "medium"}'
+```
+
+<details>
+<summary>Sample Response</summary>
+
+```json
+{
+  "transcript": "I would use a hash map to count character frequencies.",
+  "reply": "That works. What is the time and space complexity of your approach, and how would you handle Unicode characters?"
+}
+```
+
+</details>
+
+---
+
+## 4. Session Debrief
+
+```bash
+POST /api/interview/debrief
+Content-Type: application/json
+```
+
+Analyzes the full conversation history and returns structured session feedback.
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `history` | JSON string | Yes | Full `{ role, content }` conversation to debrief |
+
+### Sample Request
+
+```bash
+curl -X POST http://localhost:8080/api/interview/debrief \
+  -H "Content-Type: application/json" \
+  -d '{"history": "[{\"role\":\"user\",\"content\":\"I would use a stack...\"},{\"role\":\"assistant\",\"content\":\"Good start...\"}]"}'
+```
+
+<details>
+<summary>Sample Response</summary>
+
+```json
+{
+  "turnCount": 3,
+  "topicsCovered": ["stacks", "balanced parentheses", "hash maps"],
+  "strengths": "The candidate communicated their reasoning clearly and arrived at correct core logic for both problems without prompting.",
+  "areasToImprove": "Complexity analysis needed more depth — space complexity was not addressed and edge cases around empty input were missed.",
+  "readinessRating": "Developing",
+  "closingNote": "You showed real growth in how you explained your thinking — keep working on complexity analysis and you will be ready to interview confidently."
+}
+```
+
+</details>
+
+---
+
+## 5. Environment Variables
 
 ```bash
 PORT=8080

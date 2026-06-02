@@ -1,5 +1,6 @@
 import cors from "cors";
 import express from "express";
+import rateLimit from "express-rate-limit";
 import { env, validateEnv } from "./config/env.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import interviewRouter from "./routes/interviewRoutes.js";
@@ -8,19 +9,21 @@ validateEnv();
 
 const app = express();
 
-app.use(
-  cors({
-    origin: env.clientOrigin
-  })
-);
+app.use(cors({ origin: env.clientOrigin }));
 app.use(express.json());
 
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many requests. Please wait a few minutes before continuing." }
+});
+
+app.use("/api", apiLimiter);
+
 app.get("/health", (_req, res) => {
-  res.json({
-    status: "ok",
-    sttModel: env.sttModel,
-    llmModel: env.llmModel
-  });
+  res.json({ status: "ok", sttModel: env.sttModel, llmModel: env.llmModel });
 });
 
 app.use("/api/interview", interviewRouter);
@@ -31,7 +34,6 @@ const server = app.listen(env.port, (error) => {
     console.error(`Interview server failed to start on port ${env.port}:`, error.message);
     process.exit(1);
   }
-
   console.log(`Interview server listening on http://localhost:${env.port}`);
 });
 

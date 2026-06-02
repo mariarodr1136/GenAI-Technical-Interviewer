@@ -1,5 +1,9 @@
 import { unlink } from "node:fs/promises";
-import { generateInterviewerReply, transcribeAudio } from "../services/groqService.js";
+import {
+  generateDebriefSummary,
+  generateInterviewerReply,
+  transcribeAudio
+} from "../services/groqService.js";
 
 export async function handleInterviewTurn(req, res, next) {
   if (!req.file) {
@@ -16,12 +20,10 @@ export async function handleInterviewTurn(req, res, next) {
     }
 
     const history = parseConversationHistory(req.body.history);
-    const reply = await generateInterviewerReply(transcript, history);
+    const { topic, difficulty } = req.body;
+    const reply = await generateInterviewerReply(transcript, history, { topic, difficulty });
 
-    res.json({
-      transcript,
-      reply
-    });
+    res.json({ transcript, reply });
   } catch (error) {
     next(error);
   } finally {
@@ -29,22 +31,51 @@ export async function handleInterviewTurn(req, res, next) {
   }
 }
 
-function parseConversationHistory(rawHistory) {
-  if (!rawHistory) {
-    return [];
+export async function handleTextTurn(req, res, next) {
+  const { text, history: rawHistory, topic, difficulty } = req.body;
+
+  if (!text?.trim()) {
+    res.status(400).json({ error: "No text was provided." });
+    return;
   }
 
   try {
-    const parsed = JSON.parse(rawHistory);
+    const history = parseConversationHistory(rawHistory);
+    const reply = await generateInterviewerReply(text.trim(), history, { topic, difficulty });
+    res.json({ transcript: text.trim(), reply });
+  } catch (error) {
+    next(error);
+  }
+}
 
-    if (!Array.isArray(parsed)) {
-      return [];
-    }
+export async function handleDebrief(req, res, next) {
+  const { history: rawHistory } = req.body;
+  const history = parseConversationHistory(rawHistory, 40);
+
+  if (history.length === 0) {
+    res.status(400).json({ error: "No conversation history to debrief." });
+    return;
+  }
+
+  try {
+    const debrief = await generateDebriefSummary(history);
+    res.json(debrief);
+  } catch (error) {
+    next(error);
+  }
+}
+
+function parseConversationHistory(rawHistory, limit = 10) {
+  if (!rawHistory) return [];
+
+  try {
+    const parsed = JSON.parse(rawHistory);
+    if (!Array.isArray(parsed)) return [];
 
     return parsed
-      .filter((message) => ["user", "assistant"].includes(message?.role))
-      .filter((message) => typeof message.content === "string" && message.content.trim())
-      .slice(-10);
+      .filter((m) => ["user", "assistant"].includes(m?.role))
+      .filter((m) => typeof m.content === "string" && m.content.trim())
+      .slice(-limit);
   } catch {
     return [];
   }
@@ -54,6 +85,6 @@ async function removeUploadedFile(filePath) {
   try {
     await unlink(filePath);
   } catch {
-    // The request already completed; cleanup failure should not change the API result.
+    // Cleanup failure should not affect the API response.
   }
 }
