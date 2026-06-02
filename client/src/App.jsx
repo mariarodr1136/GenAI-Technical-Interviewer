@@ -602,7 +602,9 @@ export default function App() {
       setShowDebrief(true);
     } catch (err) {
       setError(err.message);
-      doReset();
+      // Do NOT call doReset() here — it calls setError("") which would wipe
+      // the error message before React renders it (batched state updates).
+      // The user can see the error and retry, or click Reset to clear manually.
     } finally {
       setIsLoadingDebrief(false);
     }

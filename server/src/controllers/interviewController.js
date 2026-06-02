@@ -118,10 +118,18 @@ function parseConversationHistory(rawHistory, limit = 10) {
   try {
     const parsed = JSON.parse(rawHistory);
     if (!Array.isArray(parsed)) return [];
-    return parsed
+
+    const messages = parsed
       .filter((m) => ["user", "assistant"].includes(m?.role))
       .filter((m) => typeof m.content === "string" && m.content.trim())
       .slice(-limit);
+
+    // Groq (and OpenAI-compatible APIs) require the first non-system message
+    // to be a user message. The "Begin Interview" flow produces a history that
+    // starts with an assistant message, so we drop any leading assistant turns.
+    const firstUserIdx = messages.findIndex((m) => m.role === "user");
+    if (firstUserIdx === -1) return [];
+    return firstUserIdx > 0 ? messages.slice(firstUserIdx) : messages;
   } catch {
     return [];
   }
