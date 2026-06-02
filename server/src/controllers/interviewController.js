@@ -122,7 +122,8 @@ function parseConversationHistory(rawHistory, limit = 10) {
     const messages = parsed
       .filter((m) => ["user", "assistant"].includes(m?.role))
       .filter((m) => typeof m.content === "string" && m.content.trim())
-      .slice(-limit);
+      .slice(-limit)
+      .map(({ role, content }) => ({ role, content })); // strip UI-only fields like isHint
 
     // Groq (and OpenAI-compatible APIs) require the first non-system message
     // to be a user message. The "Begin Interview" flow produces a history that
