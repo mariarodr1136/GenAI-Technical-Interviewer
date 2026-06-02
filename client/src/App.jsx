@@ -508,7 +508,7 @@ export default function App() {
                   type="button"
                   className="primary"
                   onClick={startRecording}
-                  disabled={(!canRecord(hasMicAccess, isProcessing)) || textMode}
+                  disabled={(hasMicAccess && isProcessing) || textMode}
                 >
                   {isProcessing ? (
                     <Loader2 className="spin" size={18} aria-hidden="true" />
@@ -630,8 +630,4 @@ export default function App() {
       </section>
     </main>
   );
-}
-
-function canRecord(hasMicAccess, isProcessing) {
-  return hasMicAccess && !isProcessing;
 }
