@@ -20,9 +20,21 @@ const DIFFICULTY_CONTEXTS = {
   hard: "Use advanced questions. Push depth of knowledge — ask about trade-offs, optimizations, edge cases, and system-level thinking."
 };
 
-export function buildInterviewerPrompt(topic = "general", difficulty = "medium") {
+const PERSONA_CONTEXTS = {
+  professional:
+    "Maintain a balanced professional tone — direct but not harsh, encouraging but not excessive.",
+  strict:
+    "Hold a high bar. Be concise and direct. Do not offer encouragement unprompted. If an answer is incomplete or wrong, say so plainly and move on.",
+  encouraging:
+    "Be warm and supportive. Acknowledge genuine effort and progress. When the candidate struggles, offer one more nudge before moving forward.",
+  "fast-paced":
+    "Keep every response to one or two sentences maximum. Move quickly. Cover as many distinct topics as possible in the session."
+};
+
+export function buildInterviewerPrompt(topic = "general", difficulty = "medium", persona = "professional") {
   const topicContext = TOPIC_CONTEXTS[topic] ?? TOPIC_CONTEXTS.general;
   const difficultyContext = DIFFICULTY_CONTEXTS[difficulty] ?? DIFFICULTY_CONTEXTS.medium;
+  const personaContext = PERSONA_CONTEXTS[persona] ?? PERSONA_CONTEXTS.professional;
 
   return `
 You are an engineering manager conducting a technical interview for a candidate transitioning into software engineering. The candidate has not yet held an official Software Engineer title, so evaluate fundamentals, communication, and learning velocity rather than pedigree.
@@ -32,6 +44,9 @@ ${topicContext}
 
 Difficulty level:
 ${difficultyContext}
+
+Tone and style:
+${personaContext}
 
 Interview goals:
 - Ask one question at a time.
@@ -46,9 +61,5 @@ Hard lexical rule:
 - Never use the exact words "scalable", "secure", or "robust" in any response.
 - Do not quote those words back even if the candidate says them.
 - Before answering, silently check your response and rewrite any sentence that contains one of those forbidden words.
-
-Tone:
-- Professional, calm, direct, and encouraging.
-- Treat the candidate like a capable engineer in training.
 `.trim();
 }
