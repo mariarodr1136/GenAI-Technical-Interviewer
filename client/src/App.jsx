@@ -685,7 +685,7 @@ export default function App() {
             <div className="modal-header">
               <h2>Session Debrief</h2>
               <button type="button" className="icon-btn" onClick={doReset} aria-label="Close">
-                <X size={18} />
+                <X size={16} />
               </button>
             </div>
 
@@ -796,7 +796,7 @@ export default function App() {
                       {expandedSessionId === s.id && (
                         <div className="history-transcript">
                           {s.conversation.map((m, i) => (
-                            <article key={i} className={m.role === "user" ? "turn user-turn" : "turn interviewer-turn"}>
+                            <article key={i} className={m.role === "user" ? "turn user-turn" : "turn interviewer-turn"} style={{ maxWidth: "unset" }}>
                               <span>{m.role === "user" ? "You" : "Interviewer"}</span>
                               <p>{m.content}</p>
                             </article>
@@ -822,9 +822,9 @@ export default function App() {
       <section className="workspace">
         {/* ── Topbar ──────────────────────────────────────────────────── */}
         <div className="topbar">
-          <div>
-            <p className="eyebrow">Voice-driven portfolio project</p>
-            <h1>GenAI Technical Interviewer</h1>
+          <div className="topbar-left">
+            <p className="eyebrow">AI Interview Practice</p>
+            <h1>GenAI Interviewer</h1>
           </div>
 
           <div className="topbar-right">
@@ -902,6 +902,8 @@ export default function App() {
             </label>
           )}
 
+          <div className="settings-divider" aria-hidden="true" />
+
           <label className="toggle-wrap">
             <input type="checkbox" checked={autoStart} onChange={(e) => setAutoStart(e.target.checked)} disabled={textMode} />
             <span>Auto-start mic</span>
@@ -914,11 +916,6 @@ export default function App() {
             </div>
           )}
         </div>
-
-        {/* ── Keyboard hint ────────────────────────────────────────────── */}
-        <p className="kbd-hint">
-          <kbd>Space</kbd> start/stop · <kbd>M</kbd> mute · <kbd>Esc</kbd> stop
-        </p>
 
         {/* ── Interview layout ─────────────────────────────────────────── */}
         <div className="interview-layout">
@@ -1019,6 +1016,10 @@ export default function App() {
             </button>
 
             {error && <p className="error">{error}</p>}
+
+            <p className="kbd-hint">
+              <kbd>Space</kbd> start/stop · <kbd>M</kbd> mute · <kbd>Esc</kbd> stop
+            </p>
           </section>
 
           {/* ── Conversation panel ────────────────────────────────────── */}
@@ -1054,7 +1055,7 @@ export default function App() {
                         : "turn interviewer-turn"
                       }
                     >
-                      <span>{message.role === "user" ? "You" : message.isHint ? "💡 Hint" : "Interviewer"}</span>
+                      <span>{message.role === "user" ? "You" : message.isHint ? "Hint" : "Interviewer"}</span>
                       <p>{message.content}</p>
                     </article>
                   ))}
