@@ -162,16 +162,11 @@ h1 {
   font-weight: 900;
   line-height: 1.1;
   letter-spacing: -0.03em;
-  background: linear-gradient(135deg, var(--ink) 0%, var(--teal-dark) 60%, var(--teal-light) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #044a43;
 }
 
 [data-theme="dark"] h1 {
-  background: linear-gradient(135deg, var(--ink) 0%, var(--teal-light) 70%, #5eead4 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
+  color: var(--teal-light);
 }
 
 .topbar-right {
