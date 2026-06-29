@@ -2,7 +2,9 @@
 
 ![React](https://img.shields.io/badge/React-Frontend-61DAFB) ![Vite](https://img.shields.io/badge/Vite-Build_Tool-646CFF) ![Node.js](https://img.shields.io/badge/Node.js-Backend-339933) ![Express](https://img.shields.io/badge/Express-API-000000) ![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E) ![Groq](https://img.shields.io/badge/Groq-AI_Inference-F55036) ![Whisper](https://img.shields.io/badge/Whisper_Large_v3-STT-8A2BE2) ![Llama](https://img.shields.io/badge/Llama_3_70B-LLM-FF6F00) ![Web Speech API](https://img.shields.io/badge/Web_Speech_API-TTS-0F8F83)
 
-The **GenAI Technical Interviewer** is a voice-driven **web application** designed to simulate a technical interview for candidates transitioning into software engineering. By combining a **React frontend** with a lightweight **Node.js/Express backend**, the platform lets users answer interview questions aloud, receive AI-generated follow-ups, and hear the interviewer response spoken back through the browser.
+The **GenAI Technical Interviewer** is a voice-driven **web application** designed to simulate a technical interview for candidates transitioning into software engineering. It opens with a polished **landing page** that introduces the product, and routes users into a full interview session on demand.
+
+By combining a **React frontend** with a lightweight **Node.js/Express backend**, the platform lets users answer interview questions aloud, receive AI-generated follow-ups, and hear the interviewer response spoken back through the browser.
 
 The application uses **Groq Whisper Large v3** for speech-to-text transcription and **Groq Llama 3 70B** for interview reasoning. For text-to-speech, it uses the native **Browser Web Speech API**, which avoids adding a paid TTS provider and keeps the architecture free-tier friendly.
 
@@ -39,6 +41,7 @@ https://github.com/user-attachments/assets/4e169b1b-e42a-492f-8835-fd4ad58bc8eb
 
 ### Features:
 
+- **Landing Page**: Informational homepage with hero, features, how-it-works, topics, and CTA — routes into the interview app on demand with a back button to return
 - **Voice Interview Flow**: Answer interview prompts using your microphone
 - **Text Input Fallback**: Switch to typed answers for silent environments or accessibility needs
 - **Topic Selector**: Choose a focus area — General, Algorithms, System Design, Frontend, Backend, or Behavioral
@@ -143,7 +146,7 @@ https://github.com/user-attachments/assets/4e169b1b-e42a-492f-8835-fd4ad58bc8eb
    npm run dev
    ```
 
-6. **Access the application** at http://localhost:5173
+6. **Access the application** at http://localhost:3002
 
 The Express backend runs on http://localhost:8080.
 
@@ -170,7 +173,8 @@ GenAI Technical Interviewer/
 │       │   ├── recorder.js         # MediaRecorder MIME helpers
 │       │   └── speech.js           # Browser speech synthesis helpers (onStart/onEnd callbacks)
 │       ├── App.jsx                 # Main interview UI — voice, text, history, debrief
-│       ├── main.jsx                # React entry point
+│       ├── LandingPage.jsx         # Marketing homepage with hero, features, and CTA
+│       ├── main.jsx                # React entry point — routes between landing page and app
 │       └── styles.css              # Responsive interface styling
 │
 ├── server/                         # Node/Express backend

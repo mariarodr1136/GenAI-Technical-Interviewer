@@ -1,4 +1,5 @@
 import {
+  ArrowLeft,
   Check,
   ChevronDown,
   Clock,
@@ -120,7 +121,7 @@ function formatSessionDate(iso) {
   });
 }
 
-export default function App() {
+export default function App({ onHome }) {
   // ── Config ──────────────────────────────────────────────────────────────
   const [topic, setTopic] = useState("general");
   const [difficulty, setDifficulty] = useState("medium");
@@ -829,6 +830,11 @@ export default function App() {
 
           <div className="topbar-right">
             <div className="topbar-actions">
+              {onHome && (
+                <button type="button" className="icon-btn" onClick={onHome} title="Back to homepage">
+                  <ArrowLeft size={17} />
+                </button>
+              )}
               <button type="button" className="icon-btn" onClick={() => setShowHistory(true)} title="Session history">
                 <History size={17} />
                 {sessionHistory.length > 0 && <span className="history-badge">{sessionHistory.length}</span>}
