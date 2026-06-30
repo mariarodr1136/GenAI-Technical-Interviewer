@@ -1,12 +1,12 @@
 # GenAI Technical Interviewer 🎙️
 
-![React](https://img.shields.io/badge/React-Frontend-61DAFB) ![Vite](https://img.shields.io/badge/Vite-Build_Tool-646CFF) ![Node.js](https://img.shields.io/badge/Node.js-Backend-339933) ![Express](https://img.shields.io/badge/Express-API-000000) ![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E) ![Groq](https://img.shields.io/badge/Groq-AI_Inference-F55036) ![Whisper](https://img.shields.io/badge/Whisper_Large_v3-STT-8A2BE2) ![Llama](https://img.shields.io/badge/Llama_3_70B-LLM-FF6F00) ![Web Speech API](https://img.shields.io/badge/Web_Speech_API-TTS-0F8F83)
+![React](https://img.shields.io/badge/React-Frontend-61DAFB) ![Vite](https://img.shields.io/badge/Vite-Build_Tool-646CFF) ![Node.js](https://img.shields.io/badge/Node.js-Backend-339933) ![Express](https://img.shields.io/badge/Express-API-000000) ![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E) ![Groq](https://img.shields.io/badge/Groq-AI_Inference-F55036) ![Whisper](https://img.shields.io/badge/Whisper_Large_v3-STT-8A2BE2) ![Qwen](https://img.shields.io/badge/Qwen3.6_27B-LLM-FF6F00) ![Web Speech API](https://img.shields.io/badge/Web_Speech_API-TTS-0F8F83)
 
 The **GenAI Technical Interviewer** is a voice-driven **web application** designed to simulate a technical interview for candidates transitioning into software engineering. It opens with a polished **landing page** that introduces the product, and routes users into a full interview session on demand.
 
 By combining a **React frontend** with a lightweight **Node.js/Express backend**, the platform lets users answer interview questions aloud, receive AI-generated follow-ups, and hear the interviewer response spoken back through the browser.
 
-The application uses **Groq Whisper Large v3** for speech-to-text transcription and **Groq Llama 3 70B** for interview reasoning. For text-to-speech, it uses the native **Browser Web Speech API**, which avoids adding a paid TTS provider and keeps the architecture free-tier friendly.
+The application uses **Groq Whisper Large v3** for speech-to-text transcription and **Groq Qwen3.6 27B** for interview reasoning. For text-to-speech, it uses the native **Browser Web Speech API**, which avoids adding a paid TTS provider and keeps the architecture free-tier friendly.
 
 The ultimate goal is to help aspiring software engineers practice **problem-solving**, **algorithmic thinking**, **system logic**, and **technical communication** in a realistic interview flow. The interviewer persona is tuned for candidates who have not yet held an official Software Engineer title, giving them focused practice without relying on resume pedigree. 💻🎧
 
@@ -54,12 +54,12 @@ https://github.com/user-attachments/assets/26e1f829-82ba-47d4-ae72-aedfc8625eff
 - **Recording Timer**: Displays elapsed recording time in the control panel
 - **Audio Level Visualizer**: Live microphone amplitude bar via the Web Audio API while recording
 - **Groq Whisper Transcription**: Sends recorded audio to Groq's Whisper Large v3 model
-- **AI Interviewer Brain**: Uses Groq Llama 3 70B to generate technical follow-up questions
+- **AI Interviewer Brain**: Uses Groq Qwen3.6 27B to generate technical follow-up questions
 - **Browser Text-to-Speech**: Reads interviewer responses aloud with `window.speechSynthesis`
 - **Auto-Start Mode**: Automatically begins recording after the interviewer finishes speaking
 - **Session Debrief**: End-of-session AI summary with strengths, areas to improve, topics covered, and a readiness rating
 - **Scrollable Conversation Log**: Full interview history displayed in a chat-style panel with auto-scroll
-- **Dynamic Status Signals**: Live indicators for mic, Groq STT, Llama 70B, and Browser TTS — each reflects actual runtime state
+- **Dynamic Status Signals**: Live indicators for mic, Groq STT, Qwen3.6 27B, and Browser TTS — each reflects actual runtime state
 - **Conversation Context**: Sends recent candidate/interviewer turns to preserve interview flow
 - **Strict Interview Persona**: Engineering-manager prompt focused on fundamentals and reasoning
 - **Dynamic Prompt System**: System prompt is built per session from the selected topic and difficulty
@@ -94,7 +94,7 @@ https://github.com/user-attachments/assets/26e1f829-82ba-47d4-ae72-aedfc8625eff
 
 #### AI & Speech Layer
 - **Groq Whisper Large v3** (speech-to-text transcription)
-- **Groq Llama 3 70B** (technical interviewer reasoning and session debrief)
+- **Groq Qwen3.6 27B** (technical interviewer reasoning and session debrief)
 - **Dynamic Prompt Engineering** (per-session system prompt built from topic + difficulty)
 - **JSON Mode** (structured debrief output via `response_format: json_object`)
 - **Response Sanitization** (server-side lexical guard before returning speech text)
@@ -220,7 +220,7 @@ GenAI Technical Interviewer/
 | **Text Turn Route** | `POST /api/interview/text-turn` — JSON body, no audio required |
 | **Debrief Route** | `POST /api/interview/debrief` — returns structured session feedback as JSON |
 | **Transcription Service** | Streams uploaded audio to Groq Whisper Large v3 |
-| **LLM Interview Service** | Sends transcript and recent history to Groq Llama 3 70B |
+| **LLM Interview Service** | Sends transcript and recent history to Groq Qwen3.6 27B |
 | **Dynamic Prompt Builder** | Builds the system prompt from selected topic and difficulty per session |
 | **Debrief Service** | Calls Groq with `json_object` mode to produce structured session feedback |
 | **Response Sanitizer** | Final backend lexical check before returning interviewer text |
@@ -237,7 +237,7 @@ GenAI Technical Interviewer/
 - **Auto-start toggle** to keep the flow moving — mic fires automatically after TTS finishes
 - **Voice-first interview layout** with clear start/stop controls and elapsed recording timer
 - **Live audio level bar** so the candidate can confirm the microphone is picking up their voice
-- **Dynamic status indicators** — each signal (Mic, Groq STT, Llama 70B, Browser TTS) reflects actual runtime state rather than always showing green
+- **Dynamic status indicators** — each signal (Mic, Groq STT, Qwen3.6 27B, Browser TTS) reflects actual runtime state rather than always showing green
 - **Scrollable conversation log** showing the full interview history in a chat-style panel
 - **Text input mode** toggled via a button — useful for quiet environments or accessibility
 - **Session debrief modal** on reset — AI-generated readiness rating, topics covered, strengths, and areas to improve
@@ -290,7 +290,7 @@ GET /health
 {
   "status": "ok",
   "sttModel": "whisper-large-v3",
-  "llmModel": "llama-3.3-70b-versatile"
+  "llmModel": "qwen/qwen3.6-27b"
 }
 ```
 
@@ -420,7 +420,7 @@ PORT=8080
 CLIENT_ORIGIN=http://localhost:5173
 GROQ_API_KEY=gsk_your_key_here
 GROQ_STT_MODEL=whisper-large-v3
-GROQ_LLM_MODEL=llama-3.3-70b-versatile
+GROQ_LLM_MODEL=qwen/qwen3.6-27b
 ```
 
 | Variable | Purpose |
@@ -469,7 +469,7 @@ PORT=8080
 CLIENT_ORIGIN=https://your-frontend-url.com
 GROQ_API_KEY=gsk_your_key_here
 GROQ_STT_MODEL=whisper-large-v3
-GROQ_LLM_MODEL=llama-3.3-70b-versatile
+GROQ_LLM_MODEL=qwen/qwen3.6-27b
 ```
 
 Frontend:

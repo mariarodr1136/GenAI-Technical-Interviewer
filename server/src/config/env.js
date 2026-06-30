@@ -5,7 +5,7 @@ export const env = {
   clientOrigin: process.env.CLIENT_ORIGIN ?? "http://localhost:5173",
   groqApiKey: process.env.GROQ_API_KEY,
   sttModel: process.env.GROQ_STT_MODEL ?? "whisper-large-v3",
-  llmModel: process.env.GROQ_LLM_MODEL ?? "llama-3.3-70b-versatile"
+  llmModel: process.env.GROQ_LLM_MODEL ?? "qwen/qwen3.6-27b"
 };
 
 export function validateEnv() {
