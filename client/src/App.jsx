@@ -847,7 +847,7 @@ export default function App({ onHome }) {
             <div className="signal-row" aria-label="System status">
               <span className={hasMicAccess ? "signal ready" : "signal"}>Mic</span>
               <span className={isProcessing ? "signal active" : hasMicAccess ? "signal ready" : "signal"}>Groq STT</span>
-              <span className={isProcessing ? "signal active" : hasMicAccess ? "signal ready" : "signal"}>Llama 70B</span>
+              <span className={isProcessing ? "signal active" : hasMicAccess ? "signal ready" : "signal"}>Qwen3.6</span>
               <span className={isSpeaking ? "signal active" : !isMuted ? "signal ready" : "signal"}>Browser TTS</span>
             </div>
           </div>

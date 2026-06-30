@@ -19,7 +19,7 @@ const FEATURES = [
   {
     icon: Brain,
     title: "AI That Adapts to You",
-    desc: "Powered by Llama 3.3 70B, your interviewer adjusts question depth and follow-ups based on your answers — no two sessions are the same."
+    desc: "Powered by Qwen3.6 27B, your interviewer adjusts question depth and follow-ups based on your answers — no two sessions are the same."
   },
   {
     icon: Lightbulb,
@@ -71,7 +71,7 @@ export default function LandingPage({ onEnter }) {
         <div className="lp-hero-inner">
           <div className="lp-eyebrow">
             <Zap size={13} />
-            Powered by Llama 3.3 70B &amp; Groq Whisper
+            Powered by Qwen3.6 27B &amp; Groq Whisper
           </div>
 
           <h1 className="lp-h1">
@@ -222,7 +222,7 @@ export default function LandingPage({ onEnter }) {
         </div>
         <p className="lp-footer-tagline">Practice smarter. Interview better.</p>
         <p className="lp-footer-powered">
-          Built with React · Groq Whisper STT · Llama 3.3 70B · Browser TTS
+          Built with React · Groq Whisper STT · Qwen3.6 27B · Browser TTS
         </p>
       </footer>
 
