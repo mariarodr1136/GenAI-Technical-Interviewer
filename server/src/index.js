@@ -26,6 +26,10 @@ app.get("/health", (_req, res) => {
   res.json({ status: "ok", sttModel: env.sttModel, llmModel: env.llmModel });
 });
 
+app.get("/api/health", (_req, res) => {
+  res.json({ status: "ok" });
+});
+
 app.use("/api/interview", interviewRouter);
 app.use(errorHandler);
 
