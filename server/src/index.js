@@ -20,8 +20,6 @@ const apiLimiter = rateLimit({
   message: { error: "Too many requests. Please wait a few minutes before continuing." }
 });
 
-app.use("/api", apiLimiter);
-
 app.get("/health", (_req, res) => {
   res.json({ status: "ok", sttModel: env.sttModel, llmModel: env.llmModel });
 });
@@ -29,6 +27,8 @@ app.get("/health", (_req, res) => {
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok" });
 });
+
+app.use("/api", apiLimiter);
 
 app.use("/api/interview", interviewRouter);
 app.use(errorHandler);
