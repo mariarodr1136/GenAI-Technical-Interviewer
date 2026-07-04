@@ -5,8 +5,8 @@ import {
   handleInterviewTurn,
   handleStart,
   handleTextTurn
-} from "../controllers/interviewController.js";
-import { audioUpload } from "../middleware/upload.js";
+} from "../controllers/interviewController.ts";
+import { audioUpload } from "../middleware/upload.ts";
 
 const router = Router();
 

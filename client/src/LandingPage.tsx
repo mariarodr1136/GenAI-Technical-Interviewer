@@ -9,6 +9,8 @@ import {
   Volume2,
   Zap
 } from "lucide-react";
+import { useEffect } from "react";
+import { warmServer } from "./lib/api.ts";
 
 const FEATURES = [
   {
@@ -46,26 +48,17 @@ const STEPS = [
   }
 ];
 
-const TOPICS = [
-  "Algorithms",
-  "System Design",
-  "Frontend",
-  "Backend",
-  "Behavioral",
-  "General CS"
-];
+const TOPICS = ["Algorithms", "System Design", "Frontend", "Backend", "Behavioral", "General CS"];
 
-const STATS = [
-  { value: "Free", label: "Always" },
-  { value: "6", label: "Topic areas" },
-  { value: "3", label: "Difficulty levels" },
-  { value: "4", label: "Interviewer personas" }
-];
+export default function LandingPage({ onEnter }: { onEnter: () => void }) {
+  // The backend runs on a free tier that sleeps when idle. Pinging it while
+  // the visitor reads the landing page means the interview starts warm.
+  useEffect(() => {
+    warmServer();
+  }, []);
 
-export default function LandingPage({ onEnter }) {
   return (
     <div className="lp-root">
-
       {/* ── Hero ────────────────────────────────────────────────────────── */}
       <section className="lp-hero">
         <div className="lp-hero-inner">
@@ -75,13 +68,14 @@ export default function LandingPage({ onEnter }) {
           </div>
 
           <h1 className="lp-h1">
-            Ace Your Next<br />
+            Ace Your Next
+            <br />
             <span className="lp-h1-accent">Technical Interview</span>
           </h1>
 
           <p className="lp-hero-sub">
-            Voice-driven AI mock interviews with instant feedback. Practice algorithms,
-            system design, behavioral questions, and more — no signup, completely free.
+            Voice-driven AI mock interviews with instant feedback. Practice algorithms, system
+            design, behavioral questions, and more — no signup, completely free.
           </p>
 
           <div className="lp-hero-actions">
@@ -106,7 +100,10 @@ export default function LandingPage({ onEnter }) {
             <div className="lp-preview-body">
               <div className="lp-bubble lp-bubble-ai">
                 <span className="lp-bubble-label">Interviewer</span>
-                <p>Design a distributed rate limiter that can handle 100 million requests per second across global data centers. Walk me through your approach.</p>
+                <p>
+                  Design a distributed rate limiter that can handle 100 million requests per second
+                  across global data centers. Walk me through your approach.
+                </p>
               </div>
               <div className="lp-bubble lp-bubble-user">
                 <span className="lp-bubble-label">You</span>
@@ -206,7 +203,7 @@ export default function LandingPage({ onEnter }) {
       <section className="lp-cta-banner">
         <div className="lp-cta-inner">
           <p className="lp-cta-label">No signup. No cost. No limits.</p>
-<button className="lp-cta-launch-btn" onClick={onEnter}>
+          <button className="lp-cta-launch-btn" onClick={onEnter}>
             <Mic size={16} />
             Launch the Interviewer
             <ArrowRight size={15} />
@@ -225,7 +222,6 @@ export default function LandingPage({ onEnter }) {
           Built with React · Groq Whisper STT · Qwen3.6 27B · Browser TTS
         </p>
       </footer>
-
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { createRoot } from "react-dom/client";
-import App from "./App.jsx";
-import LandingPage from "./LandingPage.jsx";
+import App from "./App.tsx";
+import LandingPage from "./LandingPage.tsx";
 import "./styles.css";
 
 function Root() {
@@ -11,7 +11,7 @@ function Root() {
   return <LandingPage onEnter={() => setShowApp(true)} />;
 }
 
-createRoot(document.getElementById("root")).render(
+createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <Root />
   </React.StrictMode>
