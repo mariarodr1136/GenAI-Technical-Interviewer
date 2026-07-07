@@ -2,4 +2,6 @@ node_modules
 dist
 package-lock.json
 *.md
-client/src/styles.css
+client/src/styles/
+test-results
+playwright-report

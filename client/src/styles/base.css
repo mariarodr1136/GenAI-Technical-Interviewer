@@ -1,0 +1,146 @@
+/* ── Reset ──────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  color: var(--ink);
+  background: var(--page);
+  background-image:
+    radial-gradient(ellipse 80% 60% at 10% 0%, rgba(13, 148, 136, 0.14) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 50% at 90% 100%, rgba(124, 58, 237, 0.09) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 85% 5%, rgba(239, 68, 68, 0.07) 0%, transparent 45%);
+  -webkit-font-smoothing: antialiased;
+}
+
+[data-theme="dark"] body {
+  background-image:
+    radial-gradient(ellipse 80% 60% at 10% 0%, rgba(20, 184, 168, 0.1) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 50% at 90% 100%, rgba(124, 58, 237, 0.07) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 85% 5%, rgba(239, 68, 68, 0.05) 0%, transparent 45%);
+}
+
+button {
+  min-height: 40px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 0 16px;
+  color: var(--ink);
+  background: var(--surface);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  cursor: pointer;
+  transition: all 150ms ease;
+  white-space: nowrap;
+}
+
+button:hover:not(:disabled) {
+  border-color: var(--teal);
+  background: var(--surface-2);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+}
+
+button:active:not(:disabled) { transform: translateY(0); }
+button:disabled { cursor: not-allowed; opacity: 0.45; }
+
+/* ── Keyboard hint ──────────────────────────────────────────────────────── */
+.kbd-hint {
+  margin: 0;
+  font-size: 0.7rem;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  padding-top: 2px;
+}
+
+kbd {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--line-2);
+  border-radius: 5px;
+  padding: 1px 6px;
+  font-family: inherit;
+  font-size: 0.68rem;
+  font-weight: 700;
+  background: var(--surface);
+  color: var(--ink-2);
+  box-shadow: 0 1px 0 var(--line-2);
+  line-height: 1.5;
+}
+
+/* ── Error ──────────────────────────────────────────────────────────────── */
+.error {
+  margin: 0;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-left: 3px solid var(--coral);
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  color: #991b1b;
+  background: rgba(239, 68, 68, 0.07);
+  line-height: 1.45;
+  font-size: 0.83rem;
+}
+[data-theme="dark"] .error { color: var(--coral-light); background: rgba(239, 68, 68, 0.1); }
+
+/* ── Icon button ────────────────────────────────────────────────────────── */
+.icon-btn {
+  min-height: unset;
+  padding: 7px;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border-color: transparent;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.icon-btn:hover:not(:disabled) {
+  background: var(--field);
+  border-color: var(--line);
+  color: var(--ink);
+  transform: none;
+  box-shadow: none;
+}
+
+/* ── Animations ─────────────────────────────────────────────────────────── */
+.spin { animation: spin 800ms linear infinite; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes pulse-anim { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
+@keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+@keyframes signal-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+@keyframes cursor-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+@keyframes bubble-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes overlay-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes modal-in { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: none; } }
+
+/* ── Scrollbars ─────────────────────────────────────────────────────────── */
+.conversation-log::-webkit-scrollbar,
+.history-transcript::-webkit-scrollbar,
+.modal::-webkit-scrollbar { width: 5px; }
+.conversation-log::-webkit-scrollbar-thumb,
+.history-transcript::-webkit-scrollbar-thumb,
+.modal::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: var(--radius-full); }
+.conversation-log::-webkit-scrollbar-track,
+.history-transcript::-webkit-scrollbar-track,
+.modal::-webkit-scrollbar-track { background: transparent; }
+
+/* ── Screen-reader-only text ────────────────────────────────────────────── */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}

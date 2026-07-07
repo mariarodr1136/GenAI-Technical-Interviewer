@@ -5,6 +5,7 @@ import { ConversationLog } from "./components/ConversationLog.tsx";
 import { DebriefModal } from "./components/DebriefModal.tsx";
 import { HistoryModal } from "./components/HistoryModal.tsx";
 import { JobDescriptionModal } from "./components/JobDescriptionModal.tsx";
+import { ResumeModal } from "./components/ResumeModal.tsx";
 import { SettingsBar } from "./components/SettingsBar.tsx";
 import { useCountdown } from "./hooks/useCountdown.ts";
 import { useRecorder } from "./hooks/useRecorder.ts";
@@ -17,12 +18,13 @@ import {
   streamTextTurn,
   type TurnPayload
 } from "./lib/api.ts";
+import { formatRunResult, runCode } from "./lib/codeRunner.ts";
 import { clearHistory, loadHistory, saveSession } from "./lib/history.ts";
 import { loadPrefs, savePrefs } from "./lib/prefs.ts";
 import { getFileExtension } from "./lib/recorder.ts";
 import { sanitizeText } from "./lib/sanitizer.ts";
 import type { SSECallbacks } from "./lib/stream.ts";
-import type { ChatMessage, Debrief, InterviewConfig, SavedSession } from "./types.ts";
+import type { ChatMessage, CodeLanguage, InterviewConfig, SavedSession } from "./types.ts";
 
 const initialPrefs = loadPrefs();
 
@@ -33,9 +35,12 @@ export default function App({ onHome }: { onHome?: () => void }) {
   const [persona, setPersona] = useState(initialPrefs.persona);
   const [duration, setDuration] = useState(initialPrefs.duration);
   const [autoStart, setAutoStart] = useState(initialPrefs.autoStart);
+  const [handsFree, setHandsFree] = useState(initialPrefs.handsFree);
   const [selectedVoiceURI, setSelectedVoiceURI] = useState(initialPrefs.voiceURI);
   const [darkMode, setDarkMode] = useState(initialPrefs.darkMode);
   const [jobDescription, setJobDescription] = useState(initialPrefs.jobDescription);
+  const [resume, setResume] = useState(initialPrefs.resume);
+  const [codeLanguage, setCodeLanguage] = useState<CodeLanguage>(initialPrefs.codeLanguage);
 
   // ── Modes ────────────────────────────────────────────────────────────────
   const [isMuted, setIsMuted] = useState(false);
@@ -43,6 +48,8 @@ export default function App({ onHome }: { onHome?: () => void }) {
   const [codeMode, setCodeMode] = useState(false);
   const [textInput, setTextInput] = useState("");
   const [codeInput, setCodeInput] = useState("");
+  const [runOutput, setRunOutput] = useState("");
+  const [isRunningCode, setIsRunningCode] = useState(false);
 
   // ── Session ──────────────────────────────────────────────────────────────
   const [conversation, setConversation] = useState<ChatMessage[]>([]);
@@ -53,12 +60,13 @@ export default function App({ onHome }: { onHome?: () => void }) {
   const [error, setError] = useState("");
 
   // ── Debrief & history ────────────────────────────────────────────────────
-  const [debrief, setDebrief] = useState<Debrief | null>(null);
+  const [lastSession, setLastSession] = useState<SavedSession | null>(null);
   const [showDebrief, setShowDebrief] = useState(false);
   const [isLoadingDebrief, setIsLoadingDebrief] = useState(false);
   const [sessionHistory, setSessionHistory] = useState<SavedSession[]>(() => loadHistory());
   const [showHistory, setShowHistory] = useState(false);
   const [showJobDescription, setShowJobDescription] = useState(false);
+  const [showResume, setShowResume] = useState(false);
 
   // ── Refs for callbacks that outlive a render (TTS onDone, recorder stop) ─
   const abortRef = useRef<AbortController | null>(null);
@@ -81,7 +89,8 @@ export default function App({ onHome }: { onHome?: () => void }) {
 
   const recorder = useRecorder({
     onComplete: (blob, mimeType) => void submitAudio(blob, mimeType),
-    onError: setError
+    onError: setError,
+    autoStopOnSilence: handsFree
   });
 
   const countdown = useCountdown(() => void handleReset());
@@ -89,7 +98,7 @@ export default function App({ onHome }: { onHome?: () => void }) {
   const sessionStarted = conversation.length > 0;
   const isActive = recorder.isRecording || isProcessing;
 
-  const config: InterviewConfig = { topic, difficulty, persona, jobDescription };
+  const config: InterviewConfig = { topic, difficulty, persona, jobDescription, resume };
 
   // ── Persist preferences ──────────────────────────────────────────────────
   useEffect(() => {
@@ -99,11 +108,26 @@ export default function App({ onHome }: { onHome?: () => void }) {
       persona,
       duration,
       autoStart,
+      handsFree,
       voiceURI: selectedVoiceURI,
       darkMode,
-      jobDescription
+      jobDescription,
+      resume,
+      codeLanguage
     });
-  }, [topic, difficulty, persona, duration, autoStart, selectedVoiceURI, darkMode, jobDescription]);
+  }, [
+    topic,
+    difficulty,
+    persona,
+    duration,
+    autoStart,
+    handsFree,
+    selectedVoiceURI,
+    darkMode,
+    jobDescription,
+    resume,
+    codeLanguage
+  ]);
 
   // ── Dark mode ────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -182,8 +206,19 @@ export default function App({ onHome }: { onHome?: () => void }) {
       { role: "user", content: transcript, ...(code ? { code } : {}) },
       { role: "assistant", content: reply }
     ]);
-    if (code) setCodeInput("");
+    if (code) {
+      setCodeInput("");
+      setRunOutput("");
+    }
     tts.finish(autoStartAfterSpeech);
+  }
+
+  // The attachment folds the latest run output in, so the interviewer reacts
+  // to what the code actually did — not just how it reads.
+  function buildAttachment(): string | undefined {
+    if (!codeInput.trim()) return undefined;
+    if (!runOutput || topic === "system-design") return codeInput;
+    return `${codeInput}\n\n--- Output when run ---\n${runOutput}`;
   }
 
   async function runTurn(
@@ -194,7 +229,7 @@ export default function App({ onHome }: { onHome?: () => void }) {
     setStreamingReply("");
     setError("");
 
-    const code = codeInput.trim() ? codeInput : undefined;
+    const code = buildAttachment();
     const controller = new AbortController();
     abortRef.current = controller;
 
@@ -250,6 +285,21 @@ export default function App({ onHome }: { onHome?: () => void }) {
 
   function stopGenerating(): void {
     abortRef.current?.abort();
+  }
+
+  // ── Run attached code (in-browser sandbox) ───────────────────────────────
+  async function handleRunCode(): Promise<void> {
+    if (!codeInput.trim() || isRunningCode) return;
+    setIsRunningCode(true);
+    setRunOutput("");
+    try {
+      const result = await runCode(codeLanguage, codeInput);
+      setRunOutput(formatRunResult(result));
+    } catch {
+      setRunOutput("The code runner failed to start in this browser.");
+    } finally {
+      setIsRunningCode(false);
+    }
   }
 
   // ── Begin interview ──────────────────────────────────────────────────────
@@ -312,7 +362,7 @@ export default function App({ onHome }: { onHome?: () => void }) {
       saveSession(session);
       setSessionHistory(loadHistory());
 
-      setDebrief(payload);
+      setLastSession(session);
       setShowDebrief(true);
     } catch (err) {
       // Leave the error visible; the user can retry or reset manually.
@@ -327,10 +377,11 @@ export default function App({ onHome }: { onHome?: () => void }) {
     countdown.stop();
     setConversation([]);
     setError("");
-    setDebrief(null);
+    setLastSession(null);
     setShowDebrief(false);
     setTextInput("");
     setCodeInput("");
+    setRunOutput("");
     setCurrentTranscript("");
     setStreamingReply("");
   }
@@ -343,7 +394,7 @@ export default function App({ onHome }: { onHome?: () => void }) {
   // ── Render ───────────────────────────────────────────────────────────────
   return (
     <main className="app-shell">
-      {showDebrief && debrief && <DebriefModal debrief={debrief} onClose={doReset} />}
+      {showDebrief && lastSession && <DebriefModal session={lastSession} onClose={doReset} />}
 
       {showHistory && (
         <HistoryModal
@@ -362,6 +413,10 @@ export default function App({ onHome }: { onHome?: () => void }) {
           onSave={setJobDescription}
           onClose={() => setShowJobDescription(false)}
         />
+      )}
+
+      {showResume && (
+        <ResumeModal value={resume} onSave={setResume} onClose={() => setShowResume(false)} />
       )}
 
       <section className="workspace">
@@ -437,18 +492,22 @@ export default function App({ onHome }: { onHome?: () => void }) {
           duration={duration}
           voiceURI={selectedVoiceURI}
           autoStart={autoStart}
+          handsFree={handsFree}
           textMode={textMode}
           locked={isActive || sessionStarted}
           voices={tts.availableVoices}
           countdownSeconds={countdown.secondsLeft}
           hasJobDescription={Boolean(jobDescription)}
+          hasResume={Boolean(resume)}
           onTopicChange={setTopic}
           onDifficultyChange={setDifficulty}
           onPersonaChange={setPersona}
           onDurationChange={setDuration}
           onVoiceChange={setSelectedVoiceURI}
           onAutoStartChange={setAutoStart}
+          onHandsFreeChange={setHandsFree}
           onOpenJobDescription={() => setShowJobDescription(true)}
+          onOpenResume={() => setShowResume(true)}
         />
 
         <div className="interview-layout">
@@ -468,6 +527,10 @@ export default function App({ onHome }: { onHome?: () => void }) {
             codeMode={codeMode}
             textInput={textInput}
             codeInput={codeInput}
+            designNotesMode={topic === "system-design"}
+            codeLanguage={codeLanguage}
+            runOutput={runOutput}
+            isRunningCode={isRunningCode}
             onRequestMicrophone={() => void recorder.requestMicrophone()}
             onStartRecording={() => void startRecording()}
             onStopRecording={recorder.stop}
@@ -479,6 +542,9 @@ export default function App({ onHome }: { onHome?: () => void }) {
             onToggleCodeMode={() => setCodeMode((m) => !m)}
             onTextInputChange={setTextInput}
             onCodeInputChange={setCodeInput}
+            onCodeLanguageChange={setCodeLanguage}
+            onRunCode={() => void handleRunCode()}
+            onClearRunOutput={() => setRunOutput("")}
             onSubmitText={() => void submitText()}
             onBeginInterview={() => void beginInterview()}
             onRequestHint={() => void requestHint()}

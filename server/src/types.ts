@@ -10,6 +10,7 @@ export interface InterviewOptions {
   difficulty: string;
   persona: string;
   jobDescription?: string;
+  resume?: string;
 }
 
 export interface Debrief {

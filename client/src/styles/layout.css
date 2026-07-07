@@ -1,0 +1,163 @@
+/* ── Layout ─────────────────────────────────────────────────────────────── */
+.app-shell { min-height: 100vh; display: flex; flex-direction: column; padding: 16px 16px 32px; }
+.workspace { width: 100%; flex: 1; display: flex; flex-direction: column; }
+
+/* ── Topbar ─────────────────────────────────────────────────────────────── */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 20px;
+  padding: 20px 28px;
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.9);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+
+[data-theme="dark"] .topbar {
+  background: rgba(17, 29, 42, 0.75);
+  border-color: rgba(255,255,255,0.06);
+}
+
+.topbar-left { display: flex; flex-direction: column; gap: 2px; }
+
+.eyebrow {
+  margin: 0 0 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--teal);
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(1.5rem, 3.5vw, 2.4rem);
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: #044a43;
+}
+
+[data-theme="dark"] h1 {
+  color: var(--teal-light);
+}
+
+.topbar-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.topbar-actions { display: flex; gap: 6px; align-items: center; }
+
+/* ── Status signals ─────────────────────────────────────────────────────── */
+.signal-row { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+
+.signal {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-full);
+  padding: 4px 10px;
+  color: var(--muted);
+  background: var(--surface-2);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.signal::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--muted);
+  opacity: 0.4;
+  flex-shrink: 0;
+}
+
+.signal.ready {
+  color: var(--teal-dark);
+  border-color: rgba(13, 148, 136, 0.3);
+  background: rgba(13, 148, 136, 0.07);
+}
+.signal.ready::before { background: var(--teal); opacity: 1; }
+
+.signal.active {
+  color: var(--teal-dark);
+  border-color: rgba(13, 148, 136, 0.4);
+  background: rgba(13, 148, 136, 0.12);
+  animation: signal-blink 1.1s ease-in-out infinite;
+}
+.signal.active::before { background: var(--teal); opacity: 1; animation: pulse-dot 1.1s ease-in-out infinite; }
+
+[data-theme="dark"] .signal.ready { color: var(--teal-light); }
+[data-theme="dark"] .signal.active { color: var(--teal-light); }
+
+/* ── History badge ──────────────────────────────────────────────────────── */
+.icon-btn { position: relative; }
+.history-badge {
+  position: absolute;
+  top: -5px; right: -5px;
+  min-width: 17px; height: 17px;
+  border-radius: var(--radius-full);
+  background: var(--coral);
+  color: #fff;
+  font-size: 0.63rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+  line-height: 1;
+  box-shadow: 0 0 0 2px var(--surface);
+}
+
+/* ── Interview layout ───────────────────────────────────────────────────── */
+.interview-layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 16px;
+  align-items: stretch;
+  flex: 1;
+}
+
+/* ── Panel shared ───────────────────────────────────────────────────────── */
+.control-panel, .conversation-panel {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: rgba(255,255,255,0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: var(--shadow);
+}
+[data-theme="dark"] .control-panel,
+[data-theme="dark"] .conversation-panel {
+  background: rgba(17, 29, 42, 0.82);
+  border-color: var(--line);
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 860px) {
+  .app-shell { padding: 10px 10px 24px; }
+  .topbar { flex-wrap: wrap; padding: 14px 16px; gap: 12px; }
+  .topbar-right { align-items: flex-start; flex-direction: row; flex-wrap: wrap; gap: 8px; }
+  .signal-row { justify-content: flex-start; }
+  .interview-layout { grid-template-columns: 1fr; }
+  .conversation-panel { min-height: 400px; }
+  .kbd-hint { display: none; }
+}
+
+@media (max-width: 480px) {
+  .app-shell { padding: 8px 8px 20px; }
+  .button-grid { grid-template-columns: 1fr; }
+  .settings-bar { gap: 8px; }
+  .topbar { border-radius: var(--radius); }
+  .control-panel, .conversation-panel { border-radius: var(--radius); }
+}

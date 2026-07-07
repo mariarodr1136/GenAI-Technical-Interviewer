@@ -19,6 +19,10 @@ export default tseslint.config(
     languageOptions: { globals: globals.node }
   },
   {
+    files: ["client/public/sw.js"],
+    languageOptions: { globals: globals.serviceworker }
+  },
+  {
     rules: {
       "@typescript-eslint/no-unused-vars": [
         "error",

@@ -1,0 +1,115 @@
+/* ── Settings bar ───────────────────────────────────────────────────────── */
+.settings-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 14px;
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(255,255,255,0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-sm);
+}
+[data-theme="dark"] .settings-bar {
+  background: rgba(17, 29, 42, 0.7);
+  border-color: var(--line);
+}
+
+.select-wrap { display: flex; align-items: center; gap: 6px; }
+.select-wrap > span {
+  color: var(--muted);
+  text-transform: uppercase;
+  font-size: 0.67rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.select-inner { position: relative; display: inline-flex; align-items: center; }
+.select-inner select {
+  appearance: none;
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius-xs);
+  padding: 5px 28px 5px 10px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 150ms, box-shadow 150ms;
+}
+.select-inner select:focus { outline: none; border-color: var(--teal); box-shadow: 0 0 0 3px var(--teal-glow); }
+.select-inner select:hover:not(:disabled) { border-color: var(--teal); }
+.select-inner select:disabled { opacity: 0.45; cursor: not-allowed; }
+.select-chevron { position: absolute; right: 8px; pointer-events: none; color: var(--muted); }
+
+.toggle-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.toggle-wrap {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  color: var(--ink-2);
+}
+.toggle-wrap input[type="checkbox"] { width: 14px; height: 14px; accent-color: var(--teal); cursor: pointer; }
+.toggle-wrap input:disabled { cursor: not-allowed; opacity: 0.45; }
+
+.settings-divider { width: 1px; height: 22px; background: var(--line-2); margin: 0 4px; }
+
+.countdown-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid rgba(13, 148, 136, 0.3);
+  border-radius: var(--radius-full);
+  padding: 4px 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--teal-dark);
+  background: rgba(13, 148, 136, 0.08);
+  margin-left: auto;
+}
+.countdown-pill.urgent {
+  border-color: rgba(239, 68, 68, 0.4);
+  color: var(--coral);
+  background: rgba(239, 68, 68, 0.08);
+  animation: signal-blink 0.8s ease-in-out infinite;
+}
+
+/* ── Job description button (settings bar) ──────────────────────────────── */
+.jd-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 150ms, color 150ms, box-shadow 150ms;
+}
+.jd-btn:hover { border-color: var(--teal); color: var(--ink); }
+.jd-btn.active { border-color: var(--teal); color: var(--teal); background: rgba(13, 148, 136, 0.06); }
+[data-theme="dark"] .jd-btn.active { color: var(--teal-light); }
+.jd-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: var(--radius-full);
+  background: var(--teal);
+}

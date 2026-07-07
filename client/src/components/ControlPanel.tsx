@@ -4,6 +4,8 @@ import {
   Lightbulb,
   Loader2,
   Mic,
+  PenLine,
+  Play,
   PlayCircle,
   RotateCcw,
   Square,
@@ -13,6 +15,7 @@ import {
   Zap
 } from "lucide-react";
 import { formatTime } from "../constants.ts";
+import type { CodeLanguage } from "../types.ts";
 
 interface ControlPanelProps {
   // status
@@ -32,6 +35,11 @@ interface ControlPanelProps {
   codeMode: boolean;
   textInput: string;
   codeInput: string;
+  /** System-design topic: the attach panel collects design notes instead of runnable code. */
+  designNotesMode: boolean;
+  codeLanguage: CodeLanguage;
+  runOutput: string;
+  isRunningCode: boolean;
   // handlers
   onRequestMicrophone: () => void;
   onStartRecording: () => void;
@@ -41,6 +49,9 @@ interface ControlPanelProps {
   onToggleCodeMode: () => void;
   onTextInputChange: (value: string) => void;
   onCodeInputChange: (value: string) => void;
+  onCodeLanguageChange: (value: CodeLanguage) => void;
+  onRunCode: () => void;
+  onClearRunOutput: () => void;
   onSubmitText: () => void;
   onBeginInterview: () => void;
   onRequestHint: () => void;
@@ -64,7 +75,11 @@ export function ControlPanel(props: ControlPanelProps) {
     textMode,
     codeMode,
     textInput,
-    codeInput
+    codeInput,
+    designNotesMode,
+    codeLanguage,
+    runOutput,
+    isRunningCode
   } = props;
 
   const isActive = isRecording || isProcessing;
@@ -191,12 +206,26 @@ export function ControlPanel(props: ControlPanelProps) {
         type="button"
         className={codeMode ? "code-toggle-btn active" : "code-toggle-btn"}
         onClick={props.onToggleCodeMode}
-        title="Attach code to your next answer"
+        title={
+          designNotesMode
+            ? "Attach design notes to your next answer"
+            : "Attach code to your next answer"
+        }
       >
-        <Code2 size={16} aria-hidden="true" />
-        {codeMode ? "Hide Code Editor" : "Attach Code"}
+        {designNotesMode ? (
+          <PenLine size={16} aria-hidden="true" />
+        ) : (
+          <Code2 size={16} aria-hidden="true" />
+        )}
+        {codeMode
+          ? designNotesMode
+            ? "Hide Design Notes"
+            : "Hide Code Editor"
+          : designNotesMode
+            ? "Attach Design Notes"
+            : "Attach Code"}
         {!codeMode && codeInput.trim() && (
-          <span className="code-attached-dot" aria-label="Code attached" />
+          <span className="code-attached-dot" aria-label="Attachment present" />
         )}
       </button>
 
@@ -206,21 +235,80 @@ export function ControlPanel(props: ControlPanelProps) {
             value={codeInput}
             onChange={(e) => props.onCodeInputChange(e.target.value)}
             onKeyDown={handleCodeKeyDown}
-            placeholder={"// Write or paste code here.\n// It is sent along with your next answer."}
+            placeholder={
+              designNotesMode
+                ? "Outline your architecture: components, data flow, storage choices, trade-offs.\nIt is sent along with your next answer."
+                : "// Write or paste code here.\n// It is sent along with your next answer."
+            }
             rows={8}
             spellCheck={false}
             disabled={isProcessing}
           />
+
+          {!designNotesMode && (
+            <div className="code-run-row">
+              <label className="code-lang-wrap">
+                <span className="visually-hidden">Language</span>
+                <select
+                  value={codeLanguage}
+                  onChange={(e) => props.onCodeLanguageChange(e.target.value as CodeLanguage)}
+                  disabled={isRunningCode}
+                  aria-label="Code language"
+                >
+                  <option value="javascript">JavaScript</option>
+                  <option value="python">Python</option>
+                </select>
+              </label>
+              <button
+                type="button"
+                className="run-btn"
+                onClick={props.onRunCode}
+                disabled={isRunningCode || !codeInput.trim()}
+              >
+                {isRunningCode ? (
+                  <Loader2 className="spin" size={14} aria-hidden="true" />
+                ) : (
+                  <Play size={14} aria-hidden="true" />
+                )}
+                {isRunningCode ? "Running…" : "Run"}
+              </button>
+              {codeLanguage === "python" && !runOutput && !isRunningCode && (
+                <span className="run-note">First Python run downloads the runtime (~10 MB).</span>
+              )}
+            </div>
+          )}
+
+          {runOutput && !designNotesMode && (
+            <div className="run-output" aria-label="Run output">
+              <div className="run-output-header">
+                <span>Output</span>
+                <button
+                  type="button"
+                  className="icon-btn"
+                  onClick={props.onClearRunOutput}
+                  title="Clear output"
+                >
+                  <X size={13} />
+                </button>
+              </div>
+              <pre>{runOutput}</pre>
+            </div>
+          )}
+
           <div className="code-panel-footer">
             <span>
-              {codeInput.trim() ? "Code will be sent with your next answer." : "Editor is empty."}
+              {codeInput.trim()
+                ? runOutput && !designNotesMode
+                  ? "Attachment and its output will be sent with your next answer."
+                  : "Attachment will be sent with your next answer."
+                : "Editor is empty."}
             </span>
             {codeInput.trim() && (
               <button
                 type="button"
                 className="icon-btn"
                 onClick={() => props.onCodeInputChange("")}
-                title="Clear code"
+                title="Clear"
               >
                 <X size={14} />
               </button>

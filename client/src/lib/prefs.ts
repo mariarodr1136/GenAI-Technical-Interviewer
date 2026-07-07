@@ -4,9 +4,12 @@ export interface Prefs {
   persona: string;
   duration: number;
   autoStart: boolean;
+  handsFree: boolean;
   voiceURI: string;
   darkMode: boolean;
   jobDescription: string;
+  resume: string;
+  codeLanguage: "javascript" | "python";
 }
 
 const STORAGE_KEY = "genai_prefs";
@@ -17,9 +20,12 @@ const DEFAULTS: Prefs = {
   persona: "professional",
   duration: 0,
   autoStart: false,
+  handsFree: false,
   voiceURI: "",
   darkMode: false,
-  jobDescription: ""
+  jobDescription: "",
+  resume: "",
+  codeLanguage: "javascript"
 };
 
 export function loadPrefs(): Prefs {

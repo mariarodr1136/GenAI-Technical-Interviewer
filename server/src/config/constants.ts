@@ -16,5 +16,6 @@ export const READINESS_RATINGS = ["Needs Practice", "Developing", "Solid", "Stro
 // Free-tier guardrails: cap prompt-injected user text so a pasted novel
 // can't blow up token usage.
 export const MAX_JOB_DESCRIPTION_CHARS = 2000;
+export const MAX_RESUME_CHARS = 2500;
 export const MAX_CODE_CHARS = 4000;
 export const MAX_TEXT_ANSWER_CHARS = 8000;

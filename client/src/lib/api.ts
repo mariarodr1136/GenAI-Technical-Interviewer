@@ -68,6 +68,7 @@ export async function streamAudioTurn(
   formData.append("difficulty", config.difficulty);
   formData.append("persona", config.persona);
   if (config.jobDescription) formData.append("jobDescription", config.jobDescription);
+  if (config.resume) formData.append("resume", config.resume);
   if (code) formData.append("code", code);
 
   const response = await fetch(`${API_BASE_URL}/api/interview/turn`, {
@@ -96,6 +97,7 @@ export async function streamTextTurn(
       difficulty: config.difficulty,
       persona: config.persona,
       jobDescription: config.jobDescription || undefined,
+      resume: config.resume || undefined,
       code: code || undefined
     }),
     signal

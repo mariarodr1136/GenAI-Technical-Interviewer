@@ -1,16 +1,29 @@
-import { X } from "lucide-react";
+import { Download, X } from "lucide-react";
 import { RATING_COLOR } from "../constants.ts";
-import type { Debrief } from "../types.ts";
+import { downloadDebriefReport } from "../lib/report.ts";
+import type { SavedSession } from "../types.ts";
 
-export function DebriefModal({ debrief, onClose }: { debrief: Debrief; onClose: () => void }) {
+export function DebriefModal({ session, onClose }: { session: SavedSession; onClose: () => void }) {
+  const debrief = session.debrief;
+
   return (
     <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Session debrief">
       <div className="modal">
         <div className="modal-header">
           <h2>Session Debrief</h2>
-          <button type="button" className="icon-btn" onClick={onClose} aria-label="Close">
-            <X size={16} />
-          </button>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button
+              type="button"
+              className="icon-btn"
+              onClick={() => downloadDebriefReport(session)}
+              title="Download report (Markdown)"
+            >
+              <Download size={16} />
+            </button>
+            <button type="button" className="icon-btn" onClick={onClose} aria-label="Close">
+              <X size={16} />
+            </button>
+          </div>
         </div>
 
         <div className={`rating-badge rating-${RATING_COLOR[debrief.readinessRating] ?? "teal"}`}>
@@ -42,6 +55,15 @@ export function DebriefModal({ debrief, onClose }: { debrief: Debrief; onClose: 
             <p>{debrief.closingNote}</p>
           </div>
         </div>
+
+        <button
+          type="button"
+          className="hint-btn full-width"
+          onClick={() => downloadDebriefReport(session)}
+        >
+          <Download size={16} aria-hidden="true" />
+          Download Report
+        </button>
 
         <button type="button" className="primary full-width" onClick={onClose}>
           Start New Session

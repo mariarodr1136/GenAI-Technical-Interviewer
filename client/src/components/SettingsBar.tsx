@@ -1,4 +1,4 @@
-import { Briefcase, ChevronDown, Timer } from "lucide-react";
+import { Briefcase, ChevronDown, FileText, Timer } from "lucide-react";
 import { DIFFICULTIES, DURATIONS, formatTime, PERSONAS, TOPICS } from "../constants.ts";
 
 interface Option {
@@ -43,18 +43,22 @@ interface SettingsBarProps {
   duration: number;
   voiceURI: string;
   autoStart: boolean;
+  handsFree: boolean;
   textMode: boolean;
   locked: boolean;
   voices: SpeechSynthesisVoice[];
   countdownSeconds: number;
   hasJobDescription: boolean;
+  hasResume: boolean;
   onTopicChange: (v: string) => void;
   onDifficultyChange: (v: string) => void;
   onPersonaChange: (v: string) => void;
   onDurationChange: (v: number) => void;
   onVoiceChange: (v: string) => void;
   onAutoStartChange: (v: boolean) => void;
+  onHandsFreeChange: (v: boolean) => void;
   onOpenJobDescription: () => void;
+  onOpenResume: () => void;
 }
 
 export function SettingsBar(props: SettingsBarProps) {
@@ -121,15 +125,41 @@ export function SettingsBar(props: SettingsBarProps) {
         {props.hasJobDescription && <span className="jd-dot" aria-label="Job description set" />}
       </button>
 
-      <label className="toggle-wrap">
-        <input
-          type="checkbox"
-          checked={props.autoStart}
-          onChange={(e) => props.onAutoStartChange(e.target.checked)}
-          disabled={props.textMode}
-        />
-        <span>Auto-start mic</span>
-      </label>
+      <button
+        type="button"
+        className={props.hasResume ? "jd-btn active" : "jd-btn"}
+        onClick={props.onOpenResume}
+        title="Let the interviewer ask about your real experience"
+      >
+        <FileText size={14} aria-hidden="true" />
+        Resume
+        {props.hasResume && <span className="jd-dot" aria-label="Resume set" />}
+      </button>
+
+      <div className="toggle-stack">
+        <label className="toggle-wrap">
+          <input
+            type="checkbox"
+            checked={props.autoStart}
+            onChange={(e) => props.onAutoStartChange(e.target.checked)}
+            disabled={props.textMode}
+          />
+          <span>Auto-start mic</span>
+        </label>
+
+        <label
+          className="toggle-wrap"
+          title="Recording stops by itself after you pause for ~2 seconds"
+        >
+          <input
+            type="checkbox"
+            checked={props.handsFree}
+            onChange={(e) => props.onHandsFreeChange(e.target.checked)}
+            disabled={props.textMode}
+          />
+          <span>Hands-free</span>
+        </label>
+      </div>
 
       {props.countdownSeconds > 0 && (
         <div className={`countdown-pill ${props.countdownSeconds <= 60 ? "urgent" : ""}`}>

@@ -35,10 +35,11 @@ export async function transcribeAudio(filePath: string): Promise<string> {
   return transcription.text?.trim() ?? "";
 }
 
-export function buildUserTurnContent(transcript: string, code?: string): string {
+export function buildUserTurnContent(transcript: string, code?: string, topic?: string): string {
   const parts = ["Candidate response transcript:", transcript];
   if (code) {
-    parts.push("", "Candidate's code:", "```", code, "```");
+    const label = topic === "system-design" ? "Candidate's design notes:" : "Candidate's code:";
+    parts.push("", label, "```", code, "```");
   }
   parts.push(
     "",
@@ -61,7 +62,7 @@ export async function createReplyStream(
       messages: [
         { role: "system", content: buildInterviewerPrompt(options) },
         ...history,
-        { role: "user", content: buildUserTurnContent(transcript, code) }
+        { role: "user", content: buildUserTurnContent(transcript, code, options.topic) }
       ],
       temperature: 0.55,
       max_completion_tokens: code ? 260 : 180,
@@ -145,6 +146,7 @@ You are an engineering manager reviewing a completed technical interview. Analyz
   "readinessRating": "<exactly one of: Needs Practice, Developing, Solid, Strong>",
   "closingNote": "<one encouraging sentence to close the session>"
 }
+If the session was behavioral, comment specifically on the candidate's STAR structure (Situation, Task, Action, Result) in strengths and areasToImprove.
 Return only valid JSON. No markdown fences, no explanation outside the JSON object.
 `.trim();
 

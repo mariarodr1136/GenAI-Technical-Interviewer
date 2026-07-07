@@ -1,6 +1,7 @@
-import { ChevronDown, Clock, RotateCcw, X } from "lucide-react";
+import { ChevronDown, Clock, Download, RotateCcw, X } from "lucide-react";
 import { useState } from "react";
 import { RATING_COLOR, TOPICS } from "../constants.ts";
+import { downloadDebriefReport } from "../lib/report.ts";
 import type { SavedSession } from "../types.ts";
 import { RatingChart } from "./RatingChart.tsx";
 
@@ -102,6 +103,19 @@ export function HistoryModal({ sessions, onClearAll, onClose }: HistoryModalProp
                       <span className="history-turns">
                         {s.turnCount} turn{s.turnCount !== 1 ? "s" : ""}
                       </span>
+                      {s.debrief && (
+                        <button
+                          type="button"
+                          className="icon-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            downloadDebriefReport(s);
+                          }}
+                          title="Download report (Markdown)"
+                        >
+                          <Download size={14} />
+                        </button>
+                      )}
                       <ChevronDown
                         size={16}
                         className={`history-chevron ${expandedSessionId === s.id ? "open" : ""}`}

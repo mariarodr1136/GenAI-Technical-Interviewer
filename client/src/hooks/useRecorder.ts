@@ -14,9 +14,20 @@ export interface Recorder {
 interface UseRecorderOptions {
   onComplete: (blob: Blob, mimeType: string) => void;
   onError: (message: string) => void;
+  /** Hands-free mode: stop automatically after a pause once the candidate has spoken. */
+  autoStopOnSilence?: boolean;
 }
 
-export function useRecorder({ onComplete, onError }: UseRecorderOptions): Recorder {
+// Tuned for speech with browser noise suppression on: ambient level sits
+// well under 10, and a 1.8s pause is a finished answer, not a thinking gap.
+const SILENCE_LEVEL = 10;
+const SILENCE_HOLD_MS = 1800;
+
+export function useRecorder({
+  onComplete,
+  onError,
+  autoStopOnSilence = false
+}: UseRecorderOptions): Recorder {
   const [hasMicAccess, setHasMicAccess] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [seconds, setSeconds] = useState(0);
@@ -30,13 +41,19 @@ export function useRecorder({ onComplete, onError }: UseRecorderOptions): Record
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const isRecordingRef = useRef(false);
 
+  // Silence tracking for hands-free auto-stop.
+  const lastLoudAtRef = useRef(0);
+  const hasSpokenRef = useRef(false);
+
   // Latest-ref pattern so the MediaRecorder onstop callback never goes stale.
   const onCompleteRef = useRef(onComplete);
   const onErrorRef = useRef(onError);
+  const autoStopRef = useRef(autoStopOnSilence);
   useEffect(() => {
     onCompleteRef.current = onComplete;
     onErrorRef.current = onError;
-  }, [onComplete, onError]);
+    autoStopRef.current = autoStopOnSilence;
+  }, [onComplete, onError, autoStopOnSilence]);
 
   useEffect(() => {
     return () => {
@@ -58,7 +75,25 @@ export function useRecorder({ onComplete, onError }: UseRecorderOptions): Record
       function tick() {
         analyser.getByteFrequencyData(data);
         const rms = Math.sqrt(data.reduce((sum, v) => sum + v * v, 0) / data.length);
-        setAudioLevel(Math.min(100, Math.round(rms * 2.4)));
+        const level = Math.min(100, Math.round(rms * 2.4));
+        setAudioLevel(level);
+
+        const now = performance.now();
+        if (level >= SILENCE_LEVEL) {
+          lastLoudAtRef.current = now;
+          hasSpokenRef.current = true;
+        }
+        // Only auto-stop after the candidate has actually said something —
+        // otherwise a slow start would end the recording instantly.
+        if (
+          autoStopRef.current &&
+          isRecordingRef.current &&
+          hasSpokenRef.current &&
+          now - lastLoudAtRef.current >= SILENCE_HOLD_MS
+        ) {
+          stop();
+          return;
+        }
         animFrameRef.current = requestAnimationFrame(tick);
       }
       tick();
@@ -123,6 +158,8 @@ export function useRecorder({ onComplete, onError }: UseRecorderOptions): Record
     isRecordingRef.current = true;
     setIsRecording(true);
     setSeconds(0);
+    hasSpokenRef.current = false;
+    lastLoudAtRef.current = performance.now();
     startLevelAnalysis(stream);
     timerRef.current = setInterval(() => setSeconds((s) => s + 1), 1000);
   }

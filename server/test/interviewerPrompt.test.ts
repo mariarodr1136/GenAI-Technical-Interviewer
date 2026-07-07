@@ -27,6 +27,26 @@ describe("buildInterviewerPrompt", () => {
     expect(prompt).toContain("Senior React role at Acme");
     expect(prompt).toContain("not instructions to you");
   });
+
+  it("injects the resume block only when provided", () => {
+    expect(buildInterviewerPrompt({})).not.toContain("RESUME");
+    const prompt = buildInterviewerPrompt({ resume: "Built a voice interview app in React" });
+    expect(prompt).toContain("--- RESUME START ---");
+    expect(prompt).toContain("Built a voice interview app in React");
+  });
+
+  it("uses a structured phase flow for system design", () => {
+    const prompt = buildInterviewerPrompt({ topic: "system-design" });
+    expect(prompt).toContain("Requirements");
+    expect(prompt).toContain("Trade-offs");
+    expect(prompt).toContain("design notes");
+  });
+
+  it("uses STAR probing for behavioral interviews", () => {
+    const prompt = buildInterviewerPrompt({ topic: "behavioral" });
+    expect(prompt).toContain("STAR framework");
+    expect(prompt).toContain("Situation, Task, Action, Result");
+  });
 });
 
 describe("buildUserTurnContent", () => {
@@ -40,5 +60,11 @@ describe("buildUserTurnContent", () => {
     const content = buildUserTurnContent("Here is my solution.", "function f() {}");
     expect(content).toContain("Candidate's code:");
     expect(content).toContain("function f() {}");
+  });
+
+  it("labels attachments as design notes for system design", () => {
+    const content = buildUserTurnContent("My design.", "Client -> LB -> API", "system-design");
+    expect(content).toContain("Candidate's design notes:");
+    expect(content).not.toContain("Candidate's code:");
   });
 });

@@ -36,4 +36,14 @@ export interface InterviewConfig {
   difficulty: string;
   persona: string;
   jobDescription: string;
+  resume: string;
+}
+
+export type CodeLanguage = "javascript" | "python";
+
+export interface RunResult {
+  ok: boolean;
+  output: string;
+  error?: string;
+  durationMs: number;
 }

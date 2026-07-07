@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { MAX_CODE_CHARS, MAX_JOB_DESCRIPTION_CHARS } from "../src/config/constants.ts";
+import {
+  MAX_CODE_CHARS,
+  MAX_JOB_DESCRIPTION_CHARS,
+  MAX_RESUME_CHARS
+} from "../src/config/constants.ts";
 import { HttpError } from "../src/utils/httpError.ts";
 import { parseCode, parseDebrief, parseInterviewOptions } from "../src/utils/validate.ts";
 
@@ -45,6 +49,14 @@ describe("parseInterviewOptions", () => {
     );
     expect(parseInterviewOptions({ jobDescription: "" }).jobDescription).toBeUndefined();
     expect(() => parseInterviewOptions({ jobDescription: ["a"] })).toThrowError(/jobDescription/);
+  });
+
+  it("truncates the resume and rejects non-strings", () => {
+    const long = "r".repeat(MAX_RESUME_CHARS + 500);
+    expect(parseInterviewOptions({ resume: long }).resume).toHaveLength(MAX_RESUME_CHARS);
+    expect(parseInterviewOptions({ resume: "  " }).resume).toBeUndefined();
+    expect(parseInterviewOptions({}).resume).toBeUndefined();
+    expect(() => parseInterviewOptions({ resume: 42 })).toThrowError(/resume/);
   });
 });
 

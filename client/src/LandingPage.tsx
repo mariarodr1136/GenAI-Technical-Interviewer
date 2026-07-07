@@ -2,21 +2,26 @@ import {
   ArrowRight,
   Brain,
   CheckCircle,
+  ChevronLeft,
+  ChevronRight,
+  Code2,
+  FileText,
   Lightbulb,
+  ListChecks,
   Mic,
   Shield,
   Sparkles,
   Volume2,
   Zap
 } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { warmServer } from "./lib/api.ts";
 
 const FEATURES = [
   {
     icon: Mic,
     title: "Voice-Powered Practice",
-    desc: "Answer naturally by speaking — just like a real interview. Groq Whisper transcribes your words in real time with near-instant accuracy."
+    desc: "Answer naturally by speaking, just like a real interview. Groq Whisper transcribes in real time, and hands-free mode detects when you finish so the conversation just flows."
   },
   {
     icon: Brain,
@@ -24,9 +29,24 @@ const FEATURES = [
     desc: "Powered by Qwen3.6 27B, your interviewer adjusts question depth and follow-ups based on your answers — no two sessions are the same."
   },
   {
+    icon: Code2,
+    title: "Run Your Code Live",
+    desc: "Attach real code and execute it right in your browser — JavaScript in a sandboxed runner or Python via WebAssembly. The interviewer reacts to what your code actually does."
+  },
+  {
+    icon: FileText,
+    title: "Resume & Job Tailoring",
+    desc: "Upload your resume (parsed privately in your browser) and paste a target job posting — questions are grounded in your real projects and the role you want."
+  },
+  {
+    icon: ListChecks,
+    title: "Real Interview Structure",
+    desc: "System design sessions move through requirements, high-level design, deep dives, and trade-offs. Behavioral sessions coach you through the STAR method."
+  },
+  {
     icon: Lightbulb,
-    title: "Personalized Debrief",
-    desc: "Every session ends with a strengths report, areas to improve, and a readiness rating so you know exactly where to focus next."
+    title: "Debrief, Reports & Trends",
+    desc: "Every session ends with strengths, areas to improve, and a readiness rating — downloadable as a Markdown report, with a trend chart across sessions."
   }
 ];
 
@@ -51,11 +71,21 @@ const STEPS = [
 const TOPICS = ["Algorithms", "System Design", "Frontend", "Backend", "Behavioral", "General CS"];
 
 export default function LandingPage({ onEnter }: { onEnter: () => void }) {
+  const featuresRef = useRef<HTMLDivElement | null>(null);
+
   // The backend runs on a free tier that sleeps when idle. Pinging it while
   // the visitor reads the landing page means the interview starts warm.
   useEffect(() => {
     warmServer();
   }, []);
+
+  function scrollFeatures(direction: -1 | 1): void {
+    const track = featuresRef.current;
+    if (!track) return;
+    const card = track.querySelector<HTMLElement>(".lp-feature-card");
+    const step = card ? card.offsetWidth + 16 : 360;
+    track.scrollBy({ left: direction * step, behavior: "smooth" });
+  }
 
   return (
     <div className="lp-root">
@@ -129,16 +159,36 @@ export default function LandingPage({ onEnter }: { onEnter: () => void }) {
             </p>
           </div>
 
-          <div className="lp-features-grid">
-            {FEATURES.map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="lp-feature-card">
-                <div className="lp-feature-icon">
-                  <Icon size={22} />
+          <div className="lp-carousel">
+            <button
+              type="button"
+              className="lp-carousel-btn"
+              onClick={() => scrollFeatures(-1)}
+              aria-label="Previous features"
+            >
+              <ChevronLeft size={18} />
+            </button>
+
+            <div className="lp-features-track" ref={featuresRef}>
+              {FEATURES.map(({ icon: Icon, title, desc }) => (
+                <div key={title} className="lp-feature-card">
+                  <div className="lp-feature-icon">
+                    <Icon size={22} />
+                  </div>
+                  <h3 className="lp-feature-title">{title}</h3>
+                  <p className="lp-feature-desc">{desc}</p>
                 </div>
-                <h3 className="lp-feature-title">{title}</h3>
-                <p className="lp-feature-desc">{desc}</p>
-              </div>
-            ))}
+              ))}
+            </div>
+
+            <button
+              type="button"
+              className="lp-carousel-btn"
+              onClick={() => scrollFeatures(1)}
+              aria-label="More features"
+            >
+              <ChevronRight size={18} />
+            </button>
           </div>
         </div>
       </section>

@@ -2,6 +2,7 @@ import {
   DIFFICULTIES,
   MAX_CODE_CHARS,
   MAX_JOB_DESCRIPTION_CHARS,
+  MAX_RESUME_CHARS,
   PERSONAS,
   READINESS_RATINGS,
   TOPICS
@@ -25,24 +26,24 @@ function pickEnum(
   return value;
 }
 
+function pickCappedText(value: unknown, field: string, maxChars: number): string | undefined {
+  if (value === undefined || value === null || value === "") return undefined;
+  if (typeof value !== "string") throw new HttpError(400, `${field} must be a string.`);
+  return value.trim().slice(0, maxChars) || undefined;
+}
+
 export function parseInterviewOptions(body: Record<string, unknown> = {}): InterviewOptions {
   const topic = pickEnum(body.topic, TOPICS, "topic", "general");
   const difficulty = pickEnum(body.difficulty, DIFFICULTIES, "difficulty", "medium");
   const persona = pickEnum(body.persona, PERSONAS, "persona", "professional");
+  const jobDescription = pickCappedText(
+    body.jobDescription,
+    "jobDescription",
+    MAX_JOB_DESCRIPTION_CHARS
+  );
+  const resume = pickCappedText(body.resume, "resume", MAX_RESUME_CHARS);
 
-  let jobDescription: string | undefined;
-  if (
-    body.jobDescription !== undefined &&
-    body.jobDescription !== null &&
-    body.jobDescription !== ""
-  ) {
-    if (typeof body.jobDescription !== "string") {
-      throw new HttpError(400, "jobDescription must be a string.");
-    }
-    jobDescription = body.jobDescription.trim().slice(0, MAX_JOB_DESCRIPTION_CHARS) || undefined;
-  }
-
-  return { topic, difficulty, persona, jobDescription };
+  return { topic, difficulty, persona, jobDescription, resume };
 }
 
 export function parseCode(value: unknown): string | undefined {

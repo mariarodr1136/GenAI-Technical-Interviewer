@@ -49,7 +49,14 @@ https://github.com/user-attachments/assets/26e1f829-82ba-47d4-ae72-aedfc8625eff
 - **Voice Interview Flow**: Answer interview prompts using your microphone
 - **Text Input Fallback**: Switch to typed answers for silent environments or accessibility needs
 - **Coding Mode** 🆕: Open a monospace code editor and attach real code to any answer — the interviewer reviews it concretely and asks follow-ups about your implementation
+- **Run Your Code In-Browser** 🆕: Execute attached JavaScript in a sandboxed Web Worker or Python via Pyodide (WebAssembly) — the program output is sent along with your answer so the interviewer reacts to what the code actually did
 - **Job Description Tailoring** 🆕: Paste a target job posting and the interviewer tailors question themes, technologies, and expectations to the role
+- **Resume Upload** 🆕: Upload a PDF (parsed entirely in your browser — the file never leaves your machine) or paste text, and the interviewer asks about your real projects and experience
+- **Structured System Design Mode** 🆕: System design sessions move through real interview phases — requirements → high-level design → deep dive → trade-offs — and the code panel becomes a design-notes pad
+- **Behavioral STAR Coaching** 🆕: Behavioral sessions probe for missing Situation/Task/Action/Result components and push for specifics and measurable results
+- **Hands-Free Mode** 🆕: Silence detection auto-stops the recording after you pause, and with auto-start enabled the whole interview loop runs without touching the keyboard
+- **Downloadable Debrief Report** 🆕: Export any session (from the debrief or history) as a Markdown report with ratings, feedback, and the full transcript
+- **Installable PWA** 🆕: Web app manifest + icons so the interviewer installs to your home screen or dock
 - **Streaming Voice Replies** 🆕: Interviewer responses are spoken sentence-by-sentence *while* they stream from the LLM — no long-utterance cutoffs, faster perceived response
 - **Stop Generating** 🆕: Cancel a reply mid-stream; the partial answer is kept and the server aborts the upstream AI call
 - **Topic Selector**: Choose a focus area — General, Algorithms, System Design, Frontend, Backend, or Behavioral
@@ -72,7 +79,7 @@ https://github.com/user-attachments/assets/26e1f829-82ba-47d4-ae72-aedfc8625eff
 - **Resilient AI Layer** 🆕: Request timeouts, automatic retries on 429/5xx, friendly error messages, and upstream aborts when the client disconnects
 - **Banned-Word Guard**: Lexical sanitizer enforced on the server *and* mirrored client-side so streamed text and speech stay clean
 - **Rate Limiting**: API requests are capped at 30 per 15-minute window per IP (proxy-aware, so limits are actually per visitor on Render)
-- **Tested & CI-Gated** 🆕: Vitest + Supertest suite with a mocked Groq SDK; GitHub Actions runs lint, typecheck, tests, and build on every push
+- **Tested & CI-Gated** 🆕: ~100 Vitest tests across server (Supertest + mocked Groq SDK) and client (Testing Library), plus a Playwright e2e smoke test; GitHub Actions runs lint, typecheck, tests, build, and e2e on every push
 - **Free-Tier Friendly Architecture**: No paid TTS service, no database requirement, and minimal server footprint
 
 ---
@@ -87,7 +94,9 @@ https://github.com/user-attachments/assets/26e1f829-82ba-47d4-ae72-aedfc8625eff
 - **Web Audio API** (real-time microphone level visualization)
 - **Web Speech API** (sentence-queued text-to-speech playback)
 - **Lucide React** (clean UI icons for interview controls)
-- **CSS** (responsive layout, status states, and interview dashboard styling)
+- **pdf.js** (client-side resume PDF text extraction — lazy-loaded, nothing uploaded)
+- **Web Workers + Pyodide** (sandboxed in-browser JavaScript and Python execution)
+- **CSS** (responsive layout split into per-area stylesheets, light/dark themes)
 
 #### Backend (API + AI Orchestration)
 - **Node.js 22 + TypeScript** (runs natively via Node's type stripping — zero build step)
@@ -106,10 +115,11 @@ https://github.com/user-attachments/assets/26e1f829-82ba-47d4-ae72-aedfc8625eff
 - **Response Sanitization** (server-side lexical guard, mirrored client-side for streamed text)
 
 #### Quality & DevOps
-- **Vitest + Supertest** (38 tests: pure-function units plus full route tests with a mocked Groq SDK)
+- **Vitest + Supertest** (server: route tests with a mocked Groq SDK; client: Testing Library component, hook, and lib tests)
+- **Playwright** (e2e smoke test: landing → interview → mocked SSE turn, plus a real code-runner check)
 - **ESLint 9 + typescript-eslint + react-hooks** (flat config, React compiler rules)
 - **Prettier** (consistent formatting)
-- **GitHub Actions CI** (lint → typecheck → test → build on every push and PR)
+- **GitHub Actions CI** (lint → typecheck → test → build, plus an e2e job, on every push and PR)
 - **npm Workspaces** (client/server project organization)
 
 ---
@@ -167,7 +177,8 @@ The Express backend runs on http://localhost:8080.
 | Command | What it does |
 |---|---|
 | `npm run dev` | Runs the Express server and Vite client together |
-| `npm test` | Runs the server test suite (Vitest + Supertest, Groq mocked) |
+| `npm test` | Runs the server and client test suites (Vitest, Groq mocked) |
+| `npm run e2e` | Playwright smoke test (starts the client dev server itself) |
 | `npm run typecheck` | Type-checks both workspaces with `tsc --noEmit` |
 | `npm run lint` | ESLint across client and server |
 | `npm run format` | Prettier write |
@@ -197,29 +208,35 @@ GenAI Technical Interviewer/
 │   ├── tsconfig.json
 │   └── src/
 │       ├── components/
-│       │   ├── ControlPanel.tsx    # Meter, record/mute/type controls, code editor, stop button
+│       │   ├── ControlPanel.tsx    # Meter, record/mute/type controls, code editor + runner
 │       │   ├── ConversationLog.tsx # Chat-style transcript with code blocks + copy/download
-│       │   ├── DebriefModal.tsx    # End-of-session readiness report
-│       │   ├── HistoryModal.tsx    # Past sessions + readiness trend chart
+│       │   ├── DebriefModal.tsx    # End-of-session readiness report + Markdown export
+│       │   ├── HistoryModal.tsx    # Past sessions, trend chart, per-session report download
 │       │   ├── JobDescriptionModal.tsx # Paste a job posting to tailor the interview
+│       │   ├── ResumeModal.tsx     # Upload (PDF, parsed in-browser) or paste a resume
 │       │   ├── RatingChart.tsx     # SVG trend line of readiness ratings
-│       │   └── SettingsBar.tsx     # Topic/difficulty/persona/timer/voice selectors
+│       │   └── SettingsBar.tsx     # Topic/difficulty/persona/timer/voice + hands-free toggle
 │       ├── hooks/
 │       │   ├── useCountdown.ts     # Session timer
-│       │   ├── useRecorder.ts      # Mic access, MediaRecorder, level analysis
+│       │   ├── useRecorder.ts      # Mic access, MediaRecorder, level analysis, silence auto-stop
 │       │   └── useTTS.ts           # Sentence-queued speech synthesis
 │       ├── lib/
 │       │   ├── api.ts              # Typed API client (SSE streaming, AbortController)
+│       │   ├── codeRunner.ts       # Sandboxed JS (Web Worker) + Python (Pyodide) execution
 │       │   ├── history.ts          # localStorage session history
 │       │   ├── prefs.ts            # Persistent user preferences
 │       │   ├── recorder.ts         # MediaRecorder MIME helpers
+│       │   ├── report.ts           # Markdown debrief report builder + download
+│       │   ├── resume.ts           # Client-side PDF/text resume extraction (pdf.js)
 │       │   ├── sanitizer.ts        # Client-side banned-word mirror
 │       │   ├── speech.ts           # SpeechQueue: streaming sentence TTS
 │       │   └── stream.ts           # SSE consumer
+│       ├── styles/                 # Per-area stylesheets (tokens, base, layout, …)
 │       ├── App.tsx                 # Session orchestration
 │       ├── LandingPage.tsx         # Marketing homepage + backend warm-up ping
-│       ├── constants.ts / types.ts
-│       └── main.tsx / styles.css
+│       ├── constants.ts / types.ts / main.tsx
+│       ├── public/                 # PWA manifest, icons, service worker
+│       └── test/                   # Client Vitest suite (libs, hooks, components)
 │
 ├── server/                         # Node/Express backend (TypeScript, no build step)
 │   ├── .env.example                # Required environment variables
@@ -312,7 +329,7 @@ This section describes how the React frontend communicates with the Express back
 
 > **Rate limit:** All `/api` routes are limited to **30 requests per 15-minute window** per IP address.
 >
-> **Validation:** `topic`, `difficulty`, and `persona` are whitelist-validated (unknown values → `400`). `jobDescription` is capped at 2,000 characters and `code` at 4,000 characters server-side.
+> **Validation:** `topic`, `difficulty`, and `persona` are whitelist-validated (unknown values → `400`). `jobDescription` is capped at 2,000 characters, `resume` at 2,500, and `code` at 4,000 server-side.
 
 ---
 
@@ -351,6 +368,7 @@ Content-Type: application/json
 | `difficulty` | string | No | `easy`, `medium`, or `hard` |
 | `persona` | string | No | `professional`, `strict`, `encouraging`, or `fast-paced` |
 | `jobDescription` | string | No | Target job posting to tailor the interview to |
+| `resume` | string | No | Candidate resume text (extracted client-side) to ground questions in real experience |
 
 <details>
 <summary>Sample Response</summary>
@@ -378,7 +396,8 @@ Content-Type: multipart/form-data
 | `history` | JSON string | No | Recent `{ role, content }` conversation messages |
 | `topic` / `difficulty` / `persona` | string | No | Interview configuration |
 | `jobDescription` | string | No | Target job posting |
-| `code` | string | No | Code the candidate attached to this answer |
+| `resume` | string | No | Candidate resume text |
+| `code` | string | No | Code (or system-design notes) the candidate attached to this answer, including any run output |
 
 The response is a **Server-Sent Events stream**:
 
@@ -420,7 +439,8 @@ Accepts a typed answer directly — no audio upload or STT step required. Same S
 | `history` | JSON string | No | Recent `{ role, content }` conversation messages |
 | `topic` / `difficulty` / `persona` | string | No | Interview configuration |
 | `jobDescription` | string | No | Target job posting |
-| `code` | string | No | Attached code |
+| `resume` | string | No | Candidate resume text |
+| `code` | string | No | Attached code or design notes |
 
 ### Sample Request
 

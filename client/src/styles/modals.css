@@ -1,0 +1,197 @@
+/* ── Modals ─────────────────────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 18, 28, 0.6);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  z-index: 100;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: overlay-in 200ms ease;
+}
+[data-theme="dark"] .modal-overlay { background: rgba(0, 0, 0, 0.75); }
+
+.modal {
+  width: min(580px, 100%);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  padding: 28px;
+  background: var(--surface);
+  box-shadow: var(--shadow-xl);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: modal-in 250ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+[data-theme="dark"] .modal { background: var(--surface); border-color: var(--line-2); }
+
+.modal-wide { width: min(740px, 100%); }
+
+.modal-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.modal-header h2 { margin: 0; font-size: 1.2rem; font-weight: 800; letter-spacing: -0.02em; }
+
+/* ── Rating badges ──────────────────────────────────────────────────────── */
+.rating-badge {
+  align-self: flex-start;
+  border-radius: var(--radius-full);
+  padding: 5px 14px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+.rating-teal { background: rgba(13, 148, 136, 0.1); color: var(--teal-dark); border: 1px solid rgba(13, 148, 136, 0.25); }
+.rating-amber { background: rgba(245, 158, 11, 0.1); color: #92400e; border: 1px solid rgba(245, 158, 11, 0.3); }
+.rating-coral { background: rgba(239, 68, 68, 0.1); color: #991b1b; border: 1px solid rgba(239, 68, 68, 0.25); }
+[data-theme="dark"] .rating-teal { color: var(--teal-light); }
+[data-theme="dark"] .rating-amber { color: var(--amber); }
+[data-theme="dark"] .rating-coral { color: var(--coral-light); }
+
+/* ── Debrief ────────────────────────────────────────────────────────────── */
+.debrief-grid { display: flex; flex-direction: column; gap: 10px; }
+
+.debrief-block {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  background: var(--field);
+}
+.debrief-block p { margin: 0; font-size: 0.9rem; line-height: 1.65; }
+
+.debrief-block.closing {
+  border-color: rgba(13, 148, 136, 0.25);
+  background: rgba(13, 148, 136, 0.05);
+}
+.debrief-block.closing p { font-style: italic; color: var(--teal-dark); }
+[data-theme="dark"] .debrief-block.closing p { color: var(--teal-light); }
+
+.debrief-label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.tag-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag {
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius-full);
+  padding: 3px 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--surface);
+  color: var(--ink-2);
+}
+
+/* ── History modal ──────────────────────────────────────────────────────── */
+.history-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 36px;
+  color: var(--muted);
+  text-align: center;
+}
+.history-empty svg { opacity: 0.35; }
+.history-empty p { margin: 0; font-size: 0.88rem; line-height: 1.6; max-width: 290px; }
+
+.chart-wrap { display: flex; flex-direction: column; gap: 8px; }
+.rating-chart { width: 100%; display: block; border-radius: var(--radius); border: 1px solid var(--line); background: var(--field); padding: 6px 4px; }
+.chart-legend { display: flex; gap: 16px; font-size: 0.7rem; color: var(--muted); font-weight: 600; }
+.chart-legend-item { display: flex; align-items: center; gap: 5px; }
+
+.history-list { display: flex; flex-direction: column; gap: 8px; }
+
+.history-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--surface-2);
+  transition: box-shadow 150ms;
+}
+.history-card:hover { box-shadow: var(--shadow-sm); }
+
+.history-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 15px;
+  cursor: pointer;
+  transition: background 150ms;
+}
+.history-card-header:hover { background: var(--surface); }
+
+.history-card-meta { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.history-date { font-size: 0.76rem; color: var(--muted); font-weight: 600; }
+
+.history-card-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.history-turns { font-size: 0.73rem; color: var(--muted); font-weight: 600; white-space: nowrap; }
+.history-chevron { color: var(--muted); transition: transform 200ms ease; }
+.history-chevron.open { transform: rotate(180deg); }
+
+.history-transcript {
+  border-top: 1px solid var(--line);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 380px;
+  overflow-y: auto;
+  background: var(--surface-2);
+}
+
+/* ── Job description modal ──────────────────────────────────────────────── */
+.jd-help {
+  margin: 0 0 10px;
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.55;
+}
+.jd-textarea {
+  width: 100%;
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius-sm);
+  padding: 10px 13px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  resize: vertical;
+  min-height: 140px;
+}
+.jd-textarea:focus { outline: none; border-color: var(--teal); box-shadow: 0 0 0 3px var(--teal-glow); }
+.jd-count {
+  display: block;
+  margin: 4px 2px 12px;
+  text-align: right;
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+.jd-actions { display: flex; gap: 8px; }
+.jd-actions .reset-btn { width: auto; padding-left: 16px; padding-right: 16px; }
+
+/* ── Resume modal ───────────────────────────────────────────────────────── */
+.resume-upload-btn {
+  width: 100%;
+  margin-bottom: 10px;
+  border-style: dashed;
+  border-color: var(--line-2);
+  color: var(--ink-2);
+  background: var(--field);
+  font-size: 0.82rem;
+}
+.resume-upload-btn:hover:not(:disabled) {
+  border-style: dashed;
+  border-color: var(--teal);
+  color: var(--teal-dark);
+}
+[data-theme="dark"] .resume-upload-btn:hover:not(:disabled) { color: var(--teal-light); }

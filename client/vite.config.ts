@@ -6,7 +6,9 @@ export default defineConfig({
   server: {
     port: 3000,
     proxy: {
-      "/api": "http://localhost:8080"
+      // Override when the default API port is taken locally, e.g.
+      // VITE_PROXY_TARGET=http://localhost:8081 npm run dev
+      "/api": process.env.VITE_PROXY_TARGET ?? "http://localhost:8080"
     }
   }
 });
