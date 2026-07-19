@@ -14,6 +14,19 @@ https://github.com/user-attachments/assets/26e1f829-82ba-47d4-ae72-aedfc8625eff
 
 ---
 
+## Table of Contents
+
+- [Highlights](#highlights)
+- [Tech Stack](#tech-stack)
+- [Getting Started](#getting-started)
+- [Project Structure](#project-structure)
+- [API Overview](#api-overview)
+- [Deployment](#deployment)
+- [Contributing](#contributing)
+- [Contact](#contact-)
+
+---
+
 ## Highlights
 
 - **Real-time voice loop** — record with `MediaRecorder`, transcribe via Whisper, stream the LLM reply over SSE, and speak it sentence-by-sentence while it's still generating. Hands-free mode auto-stops on silence and auto-starts the next turn.
