@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { formatTime } from "../constants.ts";
 import type { CodeLanguage } from "../types.ts";
+import { CodeEditor } from "./CodeEditor.tsx";
 
 interface ControlPanelProps {
   // status
@@ -84,6 +85,14 @@ export function ControlPanel(props: ControlPanelProps) {
 
   const isActive = isRecording || isProcessing;
 
+  const phase = isRecording
+    ? "Recording"
+    : isProcessing
+      ? "Thinking"
+      : isSpeaking
+        ? "Speaking"
+        : "Ready";
+
   const meterLabel = isRecording
     ? `Recording ${formatTime(recordingSeconds)}`
     : isProcessing
@@ -103,20 +112,13 @@ export function ControlPanel(props: ControlPanelProps) {
             ? "Start a turn when you are ready to answer."
             : "Click Begin Interview or Start to get your first question.";
 
-  function handleCodeKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>): void {
-    if (e.key !== "Tab") return;
-    e.preventDefault();
-    const target = e.currentTarget;
-    const { selectionStart, selectionEnd, value } = target;
-    const next = `${value.slice(0, selectionStart)}  ${value.slice(selectionEnd)}`;
-    props.onCodeInputChange(next);
-    requestAnimationFrame(() => {
-      target.selectionStart = target.selectionEnd = selectionStart + 2;
-    });
-  }
-
   return (
     <section className="control-panel" aria-label="Interview controls">
+      {/* Announces phase changes only — the ticking timer stays visual. */}
+      <p className="visually-hidden" role="status">
+        {phase}
+      </p>
+
       <div className="meter">
         <span
           className={
@@ -136,7 +138,14 @@ export function ControlPanel(props: ControlPanelProps) {
       </div>
 
       {isRecording && (
-        <div className="level-bar-wrap" aria-label="Microphone input level">
+        <div
+          className="level-bar-wrap"
+          role="progressbar"
+          aria-label="Microphone input level"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={Math.round(audioLevel)}
+        >
           <div className="level-bar">
             <div className="level-fill" style={{ width: `${audioLevel}%` }} />
           </div>
@@ -225,25 +234,39 @@ export function ControlPanel(props: ControlPanelProps) {
             ? "Attach Design Notes"
             : "Attach Code"}
         {!codeMode && codeInput.trim() && (
-          <span className="code-attached-dot" aria-label="Attachment present" />
+          <>
+            <span className="code-attached-dot" aria-hidden="true" />
+            <span className="visually-hidden">Attachment present</span>
+          </>
         )}
       </button>
 
       {codeMode && (
         <div className="code-panel">
-          <textarea
-            value={codeInput}
-            onChange={(e) => props.onCodeInputChange(e.target.value)}
-            onKeyDown={handleCodeKeyDown}
-            placeholder={
-              designNotesMode
-                ? "Outline your architecture: components, data flow, storage choices, trade-offs.\nIt is sent along with your next answer."
-                : "// Write or paste code here.\n// It is sent along with your next answer."
-            }
-            rows={8}
-            spellCheck={false}
-            disabled={isProcessing}
-          />
+          {designNotesMode ? (
+            <textarea
+              value={codeInput}
+              onChange={(e) => props.onCodeInputChange(e.target.value)}
+              placeholder={
+                "Outline your architecture: components, data flow, storage choices, trade-offs.\nIt is sent along with your next answer."
+              }
+              aria-label="Design notes"
+              rows={8}
+              spellCheck={false}
+              disabled={isProcessing}
+            />
+          ) : (
+            <CodeEditor
+              value={codeInput}
+              language={codeLanguage}
+              disabled={isProcessing}
+              placeholder={
+                "// Write or paste code here.\n// It is sent along with your next answer."
+              }
+              ariaLabel="Code editor"
+              onChange={props.onCodeInputChange}
+            />
+          )}
 
           {!designNotesMode && (
             <div className="code-run-row">
@@ -279,16 +302,17 @@ export function ControlPanel(props: ControlPanelProps) {
           )}
 
           {runOutput && !designNotesMode && (
-            <div className="run-output" aria-label="Run output">
+            <div className="run-output" role="region" aria-label="Run output">
               <div className="run-output-header">
                 <span>Output</span>
                 <button
                   type="button"
                   className="icon-btn"
                   onClick={props.onClearRunOutput}
+                  aria-label="Clear output"
                   title="Clear output"
                 >
-                  <X size={13} />
+                  <X size={13} aria-hidden="true" />
                 </button>
               </div>
               <pre>{runOutput}</pre>
@@ -308,9 +332,10 @@ export function ControlPanel(props: ControlPanelProps) {
                 type="button"
                 className="icon-btn"
                 onClick={() => props.onCodeInputChange("")}
+                aria-label={designNotesMode ? "Clear design notes" : "Clear code"}
                 title="Clear"
               >
-                <X size={14} />
+                <X size={14} aria-hidden="true" />
               </button>
             )}
           </div>
@@ -389,7 +414,11 @@ export function ControlPanel(props: ControlPanelProps) {
         {isLoadingDebrief ? "Generating debrief…" : sessionStarted ? "End & Debrief" : "Reset"}
       </button>
 
-      {error && <p className="error">{error}</p>}
+      {error && (
+        <p className="error" role="alert">
+          {error}
+        </p>
+      )}
 
       <p className="kbd-hint">
         <kbd>Space</kbd> start/stop · <kbd>M</kbd> mute · <kbd>Esc</kbd> stop

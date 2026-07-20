@@ -169,7 +169,13 @@ export default function LandingPage({ onEnter }: { onEnter: () => void }) {
               <ChevronLeft size={18} />
             </button>
 
-            <div className="lp-features-track" ref={featuresRef}>
+            <div
+              className="lp-features-track"
+              ref={featuresRef}
+              role="region"
+              aria-label="Feature highlights"
+              tabIndex={0}
+            >
               {FEATURES.map(({ icon: Icon, title, desc }) => (
                 <div key={title} className="lp-feature-card">
                   <div className="lp-feature-icon">

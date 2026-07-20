@@ -434,33 +434,46 @@ export default function App({ onHome }: { onHome?: () => void }) {
                   type="button"
                   className="icon-btn"
                   onClick={onHome}
+                  aria-label="Back to homepage"
                   title="Back to homepage"
                 >
-                  <ArrowLeft size={17} />
+                  <ArrowLeft size={17} aria-hidden="true" />
                 </button>
               )}
               <button
                 type="button"
                 className="icon-btn"
                 onClick={() => setShowHistory(true)}
+                aria-label={
+                  sessionHistory.length > 0
+                    ? `Session history (${sessionHistory.length} saved)`
+                    : "Session history"
+                }
                 title="Session history"
               >
-                <History size={17} />
+                <History size={17} aria-hidden="true" />
                 {sessionHistory.length > 0 && (
-                  <span className="history-badge">{sessionHistory.length}</span>
+                  <span className="history-badge" aria-hidden="true">
+                    {sessionHistory.length}
+                  </span>
                 )}
               </button>
               <button
                 type="button"
                 className="icon-btn"
                 onClick={() => setDarkMode((d) => !d)}
+                aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
                 title={darkMode ? "Light mode" : "Dark mode"}
               >
-                {darkMode ? <Sun size={17} /> : <Moon size={17} />}
+                {darkMode ? (
+                  <Sun size={17} aria-hidden="true" />
+                ) : (
+                  <Moon size={17} aria-hidden="true" />
+                )}
               </button>
             </div>
 
-            <div className="signal-row" aria-label="System status">
+            <div className="signal-row" role="group" aria-label="System status">
               <span className={recorder.hasMicAccess ? "signal ready" : "signal"}>Mic</span>
               <span
                 className={

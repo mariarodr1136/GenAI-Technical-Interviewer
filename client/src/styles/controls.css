@@ -50,27 +50,33 @@
 /* ── Primary / danger buttons ───────────────────────────────────────────── */
 .primary {
   color: #fff;
-  background: var(--teal);
-  border-color: var(--teal);
+  background: var(--teal-dark); /* white text needs the darker teal for 4.5:1 */
+  border-color: var(--teal-dark);
   font-weight: 700;
   letter-spacing: -0.01em;
 }
 .primary:hover:not(:disabled) {
-  background: var(--teal-dark);
-  border-color: var(--teal-dark);
+  background: #086a62;
+  border-color: #086a62;
   box-shadow: 0 4px 14px rgba(13, 148, 136, 0.35);
   transform: translateY(-1px);
+}
+/* Dark theme flips to a bright teal fill, so the text flips dark. */
+[data-theme='dark'] .primary { color: #06251f; }
+[data-theme='dark'] .primary:hover:not(:disabled) {
+  background: var(--teal-light);
+  border-color: var(--teal-light);
 }
 
 .danger {
   color: #fff;
-  background: var(--coral);
-  border-color: var(--coral);
+  background: #dc2626; /* white text needs the darker red for 4.5:1 */
+  border-color: #dc2626;
   font-weight: 700;
 }
 .danger:hover:not(:disabled) {
-  background: #dc2626;
-  border-color: #dc2626;
+  background: #b91c1c;
+  border-color: #b91c1c;
   box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
   transform: translateY(-1px);
 }
@@ -202,6 +208,26 @@
 }
 .code-panel textarea:focus { outline: none; border-color: var(--violet); box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.18); }
 .code-panel textarea:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* ── CodeMirror syntax colors ───────────────────────────────────────────── */
+/* The editor itself is themed with CSS variables in lib/editor.ts; token
+   classes are assigned there and colored here so both themes stay readable. */
+.code-editor-host .tok-keyword { color: var(--violet); }
+.code-editor-host .tok-string { color: #0a7a71; }
+.code-editor-host .tok-comment { color: var(--muted); font-style: italic; }
+.code-editor-host .tok-literal { color: #b45309; }
+.code-editor-host .tok-fn { color: #2563eb; }
+.code-editor-host .tok-type { color: #0e7490; }
+.code-editor-host .tok-prop { color: #475569; }
+.code-editor-host .tok-punct { color: var(--ink-2); }
+.code-editor-host .tok-var { color: var(--ink); }
+
+[data-theme='dark'] .code-editor-host .tok-keyword { color: #a78bfa; }
+[data-theme='dark'] .code-editor-host .tok-string { color: #2dd4c8; }
+[data-theme='dark'] .code-editor-host .tok-literal { color: #fbbf24; }
+[data-theme='dark'] .code-editor-host .tok-fn { color: #60a5fa; }
+[data-theme='dark'] .code-editor-host .tok-type { color: #22d3ee; }
+[data-theme='dark'] .code-editor-host .tok-prop { color: #94a3b8; }
 .code-panel-footer {
   display: flex;
   align-items: center;

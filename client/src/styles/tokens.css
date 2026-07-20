@@ -8,7 +8,7 @@
 
   --ink: #0f1923;
   --ink-2: #2d3b47;
-  --muted: #6b7d8c;
+  --muted: #5b6e7e; /* ≥4.5:1 on --field, --surface-2, and white (WCAG AA) */
   --line: #e2eaf0;
   --line-2: #c8d8e4;
   --surface: #ffffff;
@@ -44,7 +44,7 @@
   color-scheme: dark;
   --ink: #e8f0f8;
   --ink-2: #b8ccd8;
-  --muted: #6e8a9c;
+  --muted: #7b95a7; /* ≥4.5:1 on --surface and --surface-2 (WCAG AA) */
   --line: #1e2f3e;
   --line-2: #2a3f52;
   --surface: #111d2a;

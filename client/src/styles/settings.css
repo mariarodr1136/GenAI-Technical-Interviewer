@@ -105,7 +105,7 @@
   transition: border-color 150ms, color 150ms, box-shadow 150ms;
 }
 .jd-btn:hover { border-color: var(--teal); color: var(--ink); }
-.jd-btn.active { border-color: var(--teal); color: var(--teal); background: rgba(13, 148, 136, 0.06); }
+.jd-btn.active { border-color: var(--teal); color: var(--teal-dark); background: rgba(13, 148, 136, 0.06); }
 [data-theme="dark"] .jd-btn.active { color: var(--teal-light); }
 .jd-dot {
   width: 7px;

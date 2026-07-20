@@ -31,7 +31,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--teal);
+  color: var(--teal-dark); /* resolves to bright teal in dark theme */
 }
 
 h1 {

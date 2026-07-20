@@ -3,6 +3,26 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ControlPanel } from "../src/components/ControlPanel.tsx";
 
+// CodeMirror needs real DOM measurement APIs jsdom lacks; the component's own
+// fallback behavior is covered in CodeEditor.test.tsx.
+vi.mock("../src/components/CodeEditor.tsx", () => ({
+  CodeEditor: (props: {
+    value: string;
+    placeholder: string;
+    ariaLabel: string;
+    disabled: boolean;
+    onChange: (value: string) => void;
+  }) => (
+    <textarea
+      aria-label={props.ariaLabel}
+      placeholder={props.placeholder}
+      value={props.value}
+      onChange={(e) => props.onChange(e.target.value)}
+      disabled={props.disabled}
+    />
+  )
+}));
+
 const baseProps = {
   hasMicAccess: true,
   isRecording: false,

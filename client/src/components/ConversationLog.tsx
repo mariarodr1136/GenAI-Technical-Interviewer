@@ -51,7 +51,7 @@ export function ConversationLog({
 
   if (conversation.length === 0 && !currentTranscript && !streamingReply) {
     return (
-      <section className="conversation-panel" aria-label="Interview transcript" aria-live="polite">
+      <section className="conversation-panel" aria-label="Interview transcript">
         <div className="empty-state">
           <MessageSquare size={36} strokeWidth={1.3} />
           <p>
@@ -63,7 +63,7 @@ export function ConversationLog({
   }
 
   return (
-    <section className="conversation-panel" aria-label="Interview transcript" aria-live="polite">
+    <section className="conversation-panel" aria-label="Interview transcript">
       {conversation.length > 0 && (
         <div className="conversation-toolbar">
           <span className="turn-count">
@@ -73,22 +73,30 @@ export function ConversationLog({
             type="button"
             className="icon-btn"
             onClick={copyTranscript}
+            aria-label={copied ? "Transcript copied" : "Copy transcript"}
             title="Copy transcript"
           >
-            {copied ? <Check size={15} /> : <Copy size={15} />}
+            {copied ? (
+              <Check size={15} aria-hidden="true" />
+            ) : (
+              <Copy size={15} aria-hidden="true" />
+            )}
           </button>
           <button
             type="button"
             className="icon-btn"
             onClick={downloadTranscript}
+            aria-label="Download transcript"
             title="Download transcript"
           >
-            <Download size={15} />
+            <Download size={15} aria-hidden="true" />
           </button>
         </div>
       )}
 
-      <div className="conversation-log">
+      {/* aria-busy holds screen-reader announcements until a reply finishes
+          streaming, so it is read once as a whole instead of word by word. */}
+      <div className="conversation-log" aria-live="polite" aria-busy={Boolean(streamingReply)}>
         {conversation.map((message, i) => (
           <article
             key={i}

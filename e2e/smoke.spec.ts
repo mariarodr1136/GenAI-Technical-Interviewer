@@ -53,7 +53,9 @@ test("attached JavaScript runs in the in-browser sandbox", async ({ page }) => {
   await page.getByRole("button", { name: /start practicing free/i }).click();
 
   await page.getByRole("button", { name: "Attach Code" }).click();
-  await page.getByPlaceholder(/write or paste code here/i).fill("console.log(21 * 2);");
+  const editor = page.locator(".cm-content");
+  await editor.click();
+  await editor.fill("console.log(21 * 2);");
   await page.getByRole("button", { name: "Run", exact: true }).click();
 
   await expect(page.getByLabel("Run output")).toContainText("42");

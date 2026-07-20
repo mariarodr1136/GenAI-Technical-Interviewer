@@ -1,6 +1,7 @@
 import { FileText, Loader2, Upload, X } from "lucide-react";
 import { useRef, useState } from "react";
 import { extractResumeText, MAX_RESUME_CHARS } from "../lib/resume.ts";
+import { Modal } from "./Modal.tsx";
 
 interface ResumeModalProps {
   value: string;
@@ -32,88 +33,95 @@ export function ResumeModal({ value, onSave, onClose }: ResumeModalProps) {
   }
 
   return (
-    <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Resume">
-      <div className="modal">
-        <div className="modal-header">
-          <h2>
-            <FileText size={17} style={{ verticalAlign: "-3px", marginRight: 6 }} />
-            Your Resume
-          </h2>
-          <button type="button" className="icon-btn" onClick={onClose} aria-label="Close">
-            <X size={16} />
-          </button>
-        </div>
-
-        <p className="jd-help">
-          Upload or paste your resume so the interviewer can ask about your actual projects and
-          experience. PDFs are read entirely in your browser — the file itself is never uploaded.
-        </p>
-
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".pdf,.txt,.md,text/plain,application/pdf"
-          style={{ display: "none" }}
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) void handleFile(file);
-            e.target.value = "";
-          }}
-        />
-        <button
-          type="button"
-          className="resume-upload-btn"
-          onClick={() => fileInputRef.current?.click()}
-          disabled={isParsing}
-        >
-          {isParsing ? (
-            <Loader2 className="spin" size={16} aria-hidden="true" />
-          ) : (
-            <Upload size={16} aria-hidden="true" />
-          )}
-          {isParsing ? "Reading file…" : "Upload PDF or text file"}
+    <Modal label="Resume" onClose={onClose}>
+      <div className="modal-header">
+        <h2>
+          <FileText
+            size={17}
+            style={{ verticalAlign: "-3px", marginRight: 6 }}
+            aria-hidden="true"
+          />
+          Your Resume
+        </h2>
+        <button type="button" className="icon-btn" onClick={onClose} aria-label="Close">
+          <X size={16} aria-hidden="true" />
         </button>
+      </div>
 
-        <textarea
-          className="jd-textarea"
-          value={draft}
-          onChange={(e) => setDraft(e.target.value.slice(0, MAX_RESUME_CHARS))}
-          placeholder="…or paste your resume text here."
-          rows={9}
-          disabled={isParsing}
-        />
-        <span className="jd-count">
-          {draft.length}/{MAX_RESUME_CHARS}
-        </span>
+      <p className="jd-help">
+        Upload or paste your resume so the interviewer can ask about your actual projects and
+        experience. PDFs are read entirely in your browser — the file itself is never uploaded.
+      </p>
 
-        {parseError && <p className="error">{parseError}</p>}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".pdf,.txt,.md,text/plain,application/pdf"
+        style={{ display: "none" }}
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) void handleFile(file);
+          e.target.value = "";
+        }}
+      />
+      <button
+        type="button"
+        className="resume-upload-btn"
+        onClick={() => fileInputRef.current?.click()}
+        disabled={isParsing}
+      >
+        {isParsing ? (
+          <Loader2 className="spin" size={16} aria-hidden="true" />
+        ) : (
+          <Upload size={16} aria-hidden="true" />
+        )}
+        {isParsing ? "Reading file…" : "Upload PDF or text file"}
+      </button>
 
-        <div className="jd-actions">
-          {value && (
-            <button
-              type="button"
-              className="reset-btn"
-              onClick={() => {
-                onSave("");
-                onClose();
-              }}
-            >
-              Remove
-            </button>
-          )}
+      <textarea
+        className="jd-textarea"
+        aria-label="Resume text"
+        value={draft}
+        onChange={(e) => setDraft(e.target.value.slice(0, MAX_RESUME_CHARS))}
+        placeholder="…or paste your resume text here."
+        rows={9}
+        disabled={isParsing}
+      />
+      <span className="jd-count">
+        {draft.length}/{MAX_RESUME_CHARS}
+      </span>
+
+      {parseError && (
+        <p className="error" role="alert">
+          {parseError}
+        </p>
+      )}
+
+      <div className="jd-actions">
+        {value && (
           <button
             type="button"
-            className="primary full-width"
+            className="reset-btn"
             onClick={() => {
-              onSave(draft.trim());
+              onSave("");
               onClose();
             }}
-            disabled={isParsing}
           >
-            Save
+            Remove
           </button>
-        </div>
+        )}
+        <button
+          type="button"
+          className="primary full-width"
+          onClick={() => {
+            onSave(draft.trim());
+            onClose();
+          }}
+          disabled={isParsing}
+        >
+          Save
+        </button>
       </div>
-    </div>
+    </Modal>
   );
 }

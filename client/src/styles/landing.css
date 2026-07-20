@@ -63,8 +63,8 @@
   min-height: 38px;
   padding: 0 18px;
   border-radius: var(--radius-full);
-  background: var(--teal);
-  border: 1px solid var(--teal);
+  background: var(--teal-dark); /* white text needs the darker teal for 4.5:1 */
+  border: 1px solid var(--teal-dark);
   color: #fff;
   font-size: 0.85rem;
   font-weight: 700;
@@ -261,7 +261,7 @@
 .lp-bubble-user { align-self: flex-end; align-items: flex-end; }
 .lp-bubble-user .lp-bubble-label { color: var(--muted); }
 .lp-bubble-user p {
-  background: var(--teal);
+  background: var(--teal-dark); /* white text needs the darker teal for 4.5:1 */
   color: #fff;
   border-radius: var(--radius) var(--radius-xs) var(--radius) var(--radius);
 }
@@ -344,7 +344,7 @@
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: var(--teal);
+  color: var(--teal-dark); /* resolves to bright teal in dark theme */
 }
 
 .lp-h2 {
@@ -614,8 +614,8 @@
   min-height: 46px;
   padding: 0 24px;
   border-radius: var(--radius-full);
-  background: var(--teal);
-  border: 1px solid var(--teal);
+  background: var(--teal-dark); /* white text needs the darker teal for 4.5:1 */
+  border: 1px solid var(--teal-dark);
   color: #fff;
   font: inherit;
   font-size: 0.9rem;
@@ -628,7 +628,7 @@
 .lp-cta-launch-btn:hover {
   background: #fff;
   border-color: #fff;
-  color: var(--teal);
+  color: var(--teal-dark);
   box-shadow: 0 6px 20px rgba(13, 148, 136, 0.4);
   transform: translateY(-1px);
 }
@@ -666,7 +666,6 @@
   margin: 0;
   font-size: 0.75rem;
   color: var(--muted);
-  opacity: 0.7;
 }
 
 /* ── Landing page responsive ────────────────────────────────────────────── */

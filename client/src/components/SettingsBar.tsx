@@ -122,7 +122,12 @@ export function SettingsBar(props: SettingsBarProps) {
       >
         <Briefcase size={14} aria-hidden="true" />
         Job Description
-        {props.hasJobDescription && <span className="jd-dot" aria-label="Job description set" />}
+        {props.hasJobDescription && (
+          <>
+            <span className="jd-dot" aria-hidden="true" />
+            <span className="visually-hidden">(set)</span>
+          </>
+        )}
       </button>
 
       <button
@@ -133,7 +138,12 @@ export function SettingsBar(props: SettingsBarProps) {
       >
         <FileText size={14} aria-hidden="true" />
         Resume
-        {props.hasResume && <span className="jd-dot" aria-label="Resume set" />}
+        {props.hasResume && (
+          <>
+            <span className="jd-dot" aria-hidden="true" />
+            <span className="visually-hidden">(set)</span>
+          </>
+        )}
       </button>
 
       <div className="toggle-stack">
@@ -162,8 +172,12 @@ export function SettingsBar(props: SettingsBarProps) {
       </div>
 
       {props.countdownSeconds > 0 && (
-        <div className={`countdown-pill ${props.countdownSeconds <= 60 ? "urgent" : ""}`}>
-          <Timer size={13} />
+        <div
+          className={`countdown-pill ${props.countdownSeconds <= 60 ? "urgent" : ""}`}
+          role="timer"
+          aria-label="Session time remaining"
+        >
+          <Timer size={13} aria-hidden="true" />
           {formatTime(props.countdownSeconds)}
         </div>
       )}
