@@ -1,4 +1,4 @@
-import { ArrowLeft, History, Moon, Sun } from "lucide-react";
+import { ArrowLeft, AudioLines, History, Mic, Moon, Sparkles, Sun, Volume2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { ControlPanel } from "./components/ControlPanel.tsx";
 import { ConversationLog } from "./components/ConversationLog.tsx";
@@ -474,12 +474,16 @@ export default function App({ onHome }: { onHome?: () => void }) {
             </div>
 
             <div className="signal-row" role="group" aria-label="System status">
-              <span className={recorder.hasMicAccess ? "signal ready" : "signal"}>Mic</span>
+              <span className={recorder.hasMicAccess ? "signal ready" : "signal"}>
+                <Mic size={11} aria-hidden="true" />
+                Mic
+              </span>
               <span
                 className={
                   isProcessing ? "signal active" : recorder.hasMicAccess ? "signal ready" : "signal"
                 }
               >
+                <AudioLines size={11} aria-hidden="true" />
                 Groq STT
               </span>
               <span
@@ -487,11 +491,13 @@ export default function App({ onHome }: { onHome?: () => void }) {
                   isProcessing ? "signal active" : recorder.hasMicAccess ? "signal ready" : "signal"
                 }
               >
+                <Sparkles size={11} aria-hidden="true" />
                 Qwen3.6
               </span>
               <span
                 className={tts.isSpeaking ? "signal active" : !isMuted ? "signal ready" : "signal"}
               >
+                <Volume2 size={11} aria-hidden="true" />
                 Browser TTS
               </span>
             </div>

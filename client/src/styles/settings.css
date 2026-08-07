@@ -31,21 +31,44 @@
 .select-inner { position: relative; display: inline-flex; align-items: center; }
 .select-inner select {
   appearance: none;
-  border: 1px solid var(--line-2);
-  border-radius: var(--radius-xs);
-  padding: 5px 28px 5px 10px;
-  background: var(--surface);
+  border: 1px solid rgba(13, 148, 136, 0.28);
+  border-radius: var(--radius-full);
+  /* Room for the leading icon and the trailing chevron. */
+  padding: 6px 27px 6px 31px;
+  background: rgba(13, 148, 136, 0.07);
   color: var(--ink);
   font: inherit;
   font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
-  transition: border-color 150ms, box-shadow 150ms;
+  transition: border-color 150ms, background 150ms, box-shadow 150ms;
+  /* Sized for the longest option (set per control in SettingsBar) so choosing
+     a different one never shifts the rest of the bar. */
+  width: calc(var(--select-chars, 9ch) + 58px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.select-inner select:focus { outline: none; border-color: var(--teal); box-shadow: 0 0 0 3px var(--teal-glow); }
-.select-inner select:hover:not(:disabled) { border-color: var(--teal); }
+.voice-select { --select-chars: 12ch; }
+.select-inner select:focus-visible { outline: none; border-color: var(--teal); box-shadow: 0 0 0 3px var(--teal-glow); }
+.select-inner select:hover:not(:disabled) {
+  border-color: var(--teal);
+  background: rgba(13, 148, 136, 0.13);
+}
 .select-inner select:disabled { opacity: 0.45; cursor: not-allowed; }
-.select-chevron { position: absolute; right: 8px; pointer-events: none; color: var(--muted); }
+/* Native popups on Windows/Linux inherit the control's colours otherwise. */
+.select-inner option { background: var(--surface); color: var(--ink); font-weight: 600; }
+
+/* Opt in to the styled popup where the browser supports it (see base.css). */
+@supports (appearance: base-select) {
+  .select-inner select { appearance: base-select; }
+}
+
+.select-inner .select-icon { left: 11px; color: var(--teal); }
+.select-inner .select-chevron { right: 9px; color: var(--teal); }
+.select-inner select:disabled ~ .select-icon,
+.select-inner select:disabled ~ .select-chevron { opacity: 0.45; }
+
 
 .toggle-stack {
   display: flex;

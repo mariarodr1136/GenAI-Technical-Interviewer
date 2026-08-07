@@ -26,6 +26,9 @@
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 .turn-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-size: 0.7rem;
   font-weight: 700;
   color: var(--muted);
@@ -55,6 +58,9 @@
 }
 
 .turn > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   font-size: 0.67rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -62,6 +68,7 @@
   padding: 0 4px;
   color: var(--muted);
 }
+.turn > span svg { flex-shrink: 0; }
 
 .turn > p {
   margin: 0;

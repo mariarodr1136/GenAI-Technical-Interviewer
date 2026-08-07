@@ -1,4 +1,6 @@
 import {
+  CheckCircle,
+  ChevronDown,
   Code2,
   Keyboard,
   Lightbulb,
@@ -101,6 +103,8 @@ export function ControlPanel(props: ControlPanelProps) {
         ? "Speaking"
         : "Ready";
 
+  const PhaseIcon = isRecording ? Mic : isProcessing ? Loader2 : isSpeaking ? Volume2 : CheckCircle;
+
   const meterSub =
     isProcessing && isSlowRequest
       ? "Still working — the free-tier server may be waking up. The first request can take up to a minute."
@@ -109,8 +113,8 @@ export function ControlPanel(props: ControlPanelProps) {
         : textMode
           ? "Type your answer below and submit."
           : sessionStarted
-            ? "Start a turn when you are ready to answer."
-            : "Click Begin Interview or Start to get your first question.";
+            ? "Hit Record when you are ready to answer."
+            : "Click Begin Interview for your first question, or Record to jump straight in.";
 
   return (
     <section className="control-panel" aria-label="Interview controls">
@@ -132,7 +136,10 @@ export function ControlPanel(props: ControlPanelProps) {
           }
         />
         <div>
-          <p>{meterLabel}</p>
+          <p>
+            <PhaseIcon size={14} className={isProcessing ? "spin" : undefined} aria-hidden="true" />
+            {meterLabel}
+          </p>
           <span>{meterSub}</span>
         </div>
       </div>
@@ -174,7 +181,7 @@ export function ControlPanel(props: ControlPanelProps) {
             ) : (
               <Mic size={18} aria-hidden="true" />
             )}
-            Start
+            Record
           </button>
         ) : (
           <button type="button" className="danger" onClick={props.onStopRecording}>
@@ -272,6 +279,7 @@ export function ControlPanel(props: ControlPanelProps) {
             <div className="code-run-row">
               <label className="code-lang-wrap">
                 <span className="visually-hidden">Language</span>
+                <Code2 size={13} className="select-icon" aria-hidden="true" />
                 <select
                   value={codeLanguage}
                   onChange={(e) => props.onCodeLanguageChange(e.target.value as CodeLanguage)}
@@ -281,6 +289,7 @@ export function ControlPanel(props: ControlPanelProps) {
                   <option value="javascript">JavaScript</option>
                   <option value="python">Python</option>
                 </select>
+                <ChevronDown size={12} className="select-chevron" aria-hidden="true" />
               </label>
               <button
                 type="button"
@@ -421,7 +430,8 @@ export function ControlPanel(props: ControlPanelProps) {
       )}
 
       <p className="kbd-hint">
-        <kbd>Space</kbd> start/stop · <kbd>M</kbd> mute · <kbd>Esc</kbd> stop
+        <Keyboard size={13} aria-hidden="true" />
+        <kbd>Space</kbd> record/stop · <kbd>M</kbd> mute · <kbd>Esc</kbd> stop
       </p>
     </section>
   );

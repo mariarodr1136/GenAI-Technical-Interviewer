@@ -1,6 +1,38 @@
-import { Check, Copy, Download, MessageSquare } from "lucide-react";
+import {
+  Bot,
+  Check,
+  Copy,
+  Download,
+  Lightbulb,
+  MessageSquare,
+  MessagesSquare,
+  UserRound
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { ChatMessage } from "../types.ts";
+
+/** Speaker label for a turn — icon plus name. */
+function TurnLabel({ role, isHint }: { role: ChatMessage["role"]; isHint?: boolean }) {
+  if (role === "user") {
+    return (
+      <span>
+        <UserRound size={11} aria-hidden="true" />
+        You
+      </span>
+    );
+  }
+  return isHint ? (
+    <span>
+      <Lightbulb size={11} aria-hidden="true" />
+      Hint
+    </span>
+  ) : (
+    <span>
+      <Bot size={11} aria-hidden="true" />
+      Interviewer
+    </span>
+  );
+}
 
 function buildTranscriptText(conversation: ChatMessage[]): string {
   return conversation
@@ -55,7 +87,7 @@ export function ConversationLog({
         <div className="empty-state">
           <MessageSquare size={36} strokeWidth={1.3} />
           <p>
-            Click Begin Interview for a first question, or Start to jump straight into recording.
+            Click Begin Interview for a first question, or Record to jump straight into answering.
           </p>
         </div>
       </section>
@@ -67,6 +99,7 @@ export function ConversationLog({
       {conversation.length > 0 && (
         <div className="conversation-toolbar">
           <span className="turn-count">
+            <MessagesSquare size={13} aria-hidden="true" />
             {userTurns} turn{userTurns !== 1 ? "s" : ""}
           </span>
           <button
@@ -108,7 +141,7 @@ export function ConversationLog({
                   : "turn interviewer-turn"
             }
           >
-            <span>{message.role === "user" ? "You" : message.isHint ? "Hint" : "Interviewer"}</span>
+            <TurnLabel role={message.role} isHint={message.isHint} />
             <p>{message.content}</p>
             {message.code && (
               <pre className="code-block">
@@ -120,14 +153,14 @@ export function ConversationLog({
 
         {currentTranscript && (
           <article className="turn user-turn streaming-pending">
-            <span>You</span>
+            <TurnLabel role="user" />
             <p>{currentTranscript}</p>
           </article>
         )}
 
         {streamingReply && (
           <article className="turn interviewer-turn">
-            <span>Interviewer</span>
+            <TurnLabel role="assistant" />
             <p>
               {streamingReply}
               <span className="cursor-blink">▋</span>

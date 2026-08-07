@@ -1,4 +1,15 @@
-import { Briefcase, ChevronDown, FileText, Timer } from "lucide-react";
+import {
+  Briefcase,
+  ChevronDown,
+  FileText,
+  Gauge,
+  Layers,
+  Timer,
+  UserRound,
+  Volume2
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import type { CSSProperties } from "react";
 import { DIFFICULTIES, DURATIONS, formatTime, PERSONAS, TOPICS } from "../constants.ts";
 
 interface Option {
@@ -6,23 +17,36 @@ interface Option {
   label: string;
 }
 
+/**
+ * A styled select is sized to the option it is showing, so picking a longer
+ * one would shove everything after it along the row. Reserving room for the
+ * longest option keeps every control — and the buttons beside them — still.
+ */
+function widthOf(options: readonly Option[]): CSSProperties {
+  const longest = options.reduce((n, o) => Math.max(n, o.label.length), 0);
+  return { "--select-chars": `${longest}ch` } as CSSProperties;
+}
+
 function Select({
   label,
   value,
   options,
   disabled,
+  icon: Icon,
   onChange
 }: {
   label: string;
   value: string | number;
   options: readonly Option[];
   disabled?: boolean;
+  icon: LucideIcon;
   onChange: (value: string) => void;
 }) {
   return (
     <label className="select-wrap">
       <span>{label}</span>
-      <div className="select-inner">
+      <div className="select-inner" style={widthOf(options)}>
+        <Icon size={14} className="select-icon" aria-hidden="true" />
         <select value={value} onChange={(e) => onChange(e.target.value)} disabled={disabled}>
           {options.map(({ value: v, label: l }) => (
             <option key={v} value={v}>
@@ -68,6 +92,7 @@ export function SettingsBar(props: SettingsBarProps) {
     <div className="settings-bar">
       <Select
         label="Topic"
+        icon={Layers}
         value={props.topic}
         options={TOPICS}
         disabled={locked}
@@ -75,6 +100,7 @@ export function SettingsBar(props: SettingsBarProps) {
       />
       <Select
         label="Difficulty"
+        icon={Gauge}
         value={props.difficulty}
         options={DIFFICULTIES}
         disabled={locked}
@@ -82,6 +108,7 @@ export function SettingsBar(props: SettingsBarProps) {
       />
       <Select
         label="Persona"
+        icon={UserRound}
         value={props.persona}
         options={PERSONAS}
         disabled={locked}
@@ -89,6 +116,7 @@ export function SettingsBar(props: SettingsBarProps) {
       />
       <Select
         label="Timer"
+        icon={Timer}
         value={props.duration}
         options={DURATIONS}
         disabled={locked}
@@ -98,7 +126,10 @@ export function SettingsBar(props: SettingsBarProps) {
       {props.voices.length > 0 && (
         <label className="select-wrap">
           <span>Voice</span>
-          <div className="select-inner">
+          {/* Voice names vary wildly in length, so this one gets a fixed
+              reserve and truncates rather than sizing to the longest. */}
+          <div className="select-inner voice-select">
+            <Volume2 size={14} className="select-icon" aria-hidden="true" />
             <select value={props.voiceURI} onChange={(e) => props.onVoiceChange(e.target.value)}>
               <option value="">Default</option>
               {props.voices.map((v) => (
