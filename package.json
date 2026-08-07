@@ -1,7 +1,8 @@
 {
   "name": "genai-technical-interviewer",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
+  "type": "module",
   "description": "A free-tier GenAI technical interviewer using React, Express, Groq STT, Groq LLM, and browser speech synthesis.",
   "workspaces": [
     "client",

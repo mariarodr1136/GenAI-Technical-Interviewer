@@ -28,6 +28,7 @@ https://github.com/user-attachments/assets/78d7596b-3aa4-4434-b964-6edb8b084b70
 - [Limits & Guardrails](#limits--guardrails)
 - [Deployment](#deployment)
 - [Contributing](#contributing)
+- [License](#license)
 - [Contact](#contact-)
 
 ---
@@ -89,13 +90,17 @@ The app runs at http://localhost:3000 (Express backend on http://localhost:8080)
 |---|---|
 | `npm run dev` | Runs the Express server and Vite client together |
 | `npm test` | Server and client test suites (Vitest, Groq mocked) |
-| `npm run e2e` | Playwright smoke test (starts the client dev server itself) |
+| `npm run e2e` | Playwright smoke + accessibility tests (starts the client dev server itself) |
 | `npm run typecheck` | Type-checks both workspaces with `tsc --noEmit` |
 | `npm run lint` | ESLint across client and server |
 | `npm run format` | Prettier write |
 | `npm run build` | Production client build |
 
 All of these run in CI on every push and pull request.
+
+> If port 3000 is already in use by another dev server, run the e2e suite on a free
+> port with `E2E_PORT=3210 npm run e2e` — otherwise Playwright reuses whatever is
+> already listening on 3000 and tests the wrong app.
 
 ---
 
@@ -251,6 +256,7 @@ CLIENT_ORIGIN=https://your-frontend-url.com   # allowed CORS origin
 GROQ_API_KEY=gsk_your_key_here                # server-only secret
 GROQ_STT_MODEL=whisper-large-v3
 GROQ_LLM_MODEL=qwen/qwen3.6-27b
+GROQ_REASONING_EFFORT=none                    # Qwen3.6 is a reasoning model; leaks <think> without this
 DAILY_API_BUDGET=150                          # interview API calls/day, all visitors
 ```
 
@@ -267,6 +273,12 @@ Issues and pull requests are welcome — bug fixes, new interview modes, persona
 1. Fork the repository and create a branch (`feat/your-feature` or `fix/your-bug-fix`)
 2. Make your changes and run the checks: `npm run lint && npm run typecheck && npm test && npm run build`
 3. Push your branch and open a pull request describing your changes and testing performed
+
+---
+
+## License
+
+Released under the [MIT License](LICENSE).
 
 ---
 
