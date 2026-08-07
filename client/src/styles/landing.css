@@ -118,6 +118,25 @@
     radial-gradient(ellipse 50% 40% at 90% 80%, rgba(124, 58, 237, 0.08) 0%, transparent 50%);
 }
 
+/* Faint dot grid so the hero has some texture behind the copy. Masked to fade
+   out towards the centre and edges, so it never competes with the headline. */
+.lp-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(circle at 1px 1px, rgba(15, 25, 35, 0.09) 1px, transparent 0);
+  background-size: 26px 26px;
+  mask-image: radial-gradient(ellipse 60% 55% at 50% 42%, transparent 30%, #000 100%);
+  -webkit-mask-image: radial-gradient(ellipse 60% 55% at 50% 42%, transparent 30%, #000 100%);
+  opacity: 0.7;
+}
+[data-theme="dark"] .lp-hero::before {
+  background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.07) 1px, transparent 0);
+}
+
+.lp-hero-inner { position: relative; }
+
 .lp-hero-inner {
   max-width: 900px;
   margin: 0 auto;
@@ -213,7 +232,7 @@
   border: 1px solid var(--line);
   border-radius: var(--radius-xl);
   background: var(--surface);
-  box-shadow: var(--shadow-xl);
+  box-shadow: var(--shadow-xl), 0 24px 60px -28px var(--teal-glow);
   overflow: hidden;
   text-align: left;
   margin-top: 8px;
@@ -491,17 +510,8 @@
   position: relative;
 }
 
-.lp-steps::before {
-  content: '';
-  position: absolute;
-  left: 27px;
-  top: 48px;
-  bottom: 48px;
-  width: 2px;
-  background: linear-gradient(to bottom, var(--teal), rgba(13, 148, 136, 0.1));
-}
-
 .lp-step {
+  position: relative;
   display: flex;
   gap: 28px;
   align-items: flex-start;
@@ -510,6 +520,19 @@
 }
 .lp-step:last-child { border-bottom: none; }
 
+/* Connector from one step's badge to the next. Anchored to each step rather
+   than the whole list, so it stays aligned however the copy wraps: 28px of
+   padding + half of the 54px badge puts a badge centre 55px inside a step. */
+.lp-step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 26px;
+  top: 55px;
+  bottom: -55px;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--teal), rgba(13, 148, 136, 0.15));
+}
+
 .lp-step-num {
   width: 54px;
   height: 54px;
@@ -517,15 +540,22 @@
   border-radius: var(--radius-full);
   background: linear-gradient(135deg, var(--teal) 0%, var(--teal-light) 100%);
   color: #fff;
-  font-size: 0.8rem;
-  font-weight: 900;
-  letter-spacing: 0.02em;
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 4px 14px var(--teal-glow);
   z-index: 1;
 }
+
+.lp-step-eyebrow {
+  margin: 0 0 4px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--teal-dark);
+}
+[data-theme="dark"] .lp-step-eyebrow { color: var(--teal-light); }
 
 .lp-step-title {
   margin: 0 0 6px;
@@ -556,9 +586,11 @@
 .lp-topic-card {
   display: flex;
   align-items: center;
-  justify-content: center;
+  /* Left-aligned so the icons line up down the grid columns. */
+  justify-content: flex-start;
+  gap: 11px;
   border-radius: var(--radius-sm);
-  padding: 14px 20px;
+  padding: 13px 18px;
   font-size: 0.88rem;
   font-weight: 600;
   letter-spacing: 0.005em;
@@ -576,6 +608,24 @@
   transform: none;
 }
 [data-theme="dark"] .lp-topic-card:hover { color: var(--teal-light); }
+
+.lp-topic-icon {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: var(--radius-xs);
+  background: rgba(13, 148, 136, 0.1);
+  border: 1px solid rgba(13, 148, 136, 0.18);
+  color: var(--teal);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 150ms, border-color 150ms;
+}
+.lp-topic-card:hover .lp-topic-icon {
+  background: rgba(13, 148, 136, 0.18);
+  border-color: rgba(13, 148, 136, 0.35);
+}
 
 .lp-topics-perks {
   display: flex;
@@ -604,16 +654,6 @@
   gap: 16px;
   text-align: center;
 }
-
-.lp-cta-label {
-  margin: 0;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--teal-dark);
-}
-[data-theme="dark"] .lp-cta-label { color: var(--teal-light); }
 
 .lp-cta-title {
   margin: 0;
@@ -663,23 +703,6 @@
   text-align: center;
 }
 
-.lp-footer-logo {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  font-size: 0.95rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  color: var(--ink);
-}
-
-.lp-footer-tagline {
-  margin: 0;
-  font-size: 0.88rem;
-  font-weight: 600;
-  color: var(--muted);
-}
-
 .lp-footer-powered {
   margin: 0;
   font-size: 0.75rem;
@@ -712,7 +735,7 @@
   .lp-carousel-btn { display: none; }
   .lp-feature-card { flex-basis: 260px; }
   .lp-topics-grid { grid-template-columns: repeat(2, 1fr); }
-  .lp-steps::before { display: none; }
+  .lp-step::after { display: none; }
   .lp-footer { padding: 32px 20px; }
   .lp-stat { padding: 20px 12px; }
   .lp-stat-value { font-size: 1.6rem; }

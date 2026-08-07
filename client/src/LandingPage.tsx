@@ -1,16 +1,24 @@
 import {
   ArrowRight,
+  Binary,
   Brain,
   CheckCircle,
   ChevronLeft,
   ChevronRight,
   Code2,
   FileText,
+  GraduationCap,
+  LayoutTemplate,
   Lightbulb,
   ListChecks,
+  MessagesSquare,
   Mic,
+  Network,
+  Server,
   Shield,
+  SlidersHorizontal,
   Sparkles,
+  TrendingUp,
   Volume2,
   Zap
 } from "lucide-react";
@@ -57,22 +65,32 @@ const FEATURES = [
 const STEPS = [
   {
     n: "01",
+    icon: SlidersHorizontal,
     title: "Pick Your Setup",
     desc: "Choose a topic (Algorithms, System Design, Behavioral…), difficulty level, and interviewer persona — strict, encouraging, or fast-paced."
   },
   {
     n: "02",
+    icon: Mic,
     title: "Practice Out Loud",
     desc: "Hit Begin Interview, speak your answers, and the AI responds in real time. Switch to text mode any time if you prefer typing."
   },
   {
     n: "03",
+    icon: TrendingUp,
     title: "Review & Improve",
     desc: "Get a session debrief with an AI readiness rating, strengths, and targeted improvement tips. Track your progress over multiple sessions."
   }
 ];
 
-const TOPICS = ["Algorithms", "System Design", "Frontend", "Backend", "Behavioral", "General CS"];
+const TOPICS = [
+  { label: "Algorithms", icon: Binary },
+  { label: "System Design", icon: Network },
+  { label: "Frontend", icon: LayoutTemplate },
+  { label: "Backend", icon: Server },
+  { label: "Behavioral", icon: MessagesSquare },
+  { label: "General CS", icon: GraduationCap }
+];
 
 export default function LandingPage({ onEnter }: { onEnter: () => void }) {
   const featuresRef = useRef<HTMLDivElement | null>(null);
@@ -214,10 +232,13 @@ export default function LandingPage({ onEnter }: { onEnter: () => void }) {
           </div>
 
           <div className="lp-steps">
-            {STEPS.map(({ n, title, desc }) => (
+            {STEPS.map(({ n, icon: Icon, title, desc }) => (
               <div key={n} className="lp-step">
-                <div className="lp-step-num">{n}</div>
+                <div className="lp-step-num">
+                  <Icon size={22} />
+                </div>
                 <div>
+                  <p className="lp-step-eyebrow">Step {n}</p>
                   <h3 className="lp-step-title">{title}</h3>
                   <p className="lp-step-desc">{desc}</p>
                 </div>
@@ -240,8 +261,11 @@ export default function LandingPage({ onEnter }: { onEnter: () => void }) {
             </div>
 
             <div className="lp-topics-grid">
-              {TOPICS.map((label) => (
+              {TOPICS.map(({ label, icon: Icon }) => (
                 <div key={label} className="lp-topic-card">
+                  <span className="lp-topic-icon">
+                    <Icon size={17} />
+                  </span>
                   <span>{label}</span>
                 </div>
               ))}
@@ -262,7 +286,6 @@ export default function LandingPage({ onEnter }: { onEnter: () => void }) {
 
             {/* CTA lives on this panel so the closing screen isn't half empty. */}
             <div className="lp-cta-inner">
-              <p className="lp-cta-label">No signup. No cost. No limits.</p>
               <button className="lp-cta-launch-btn" onClick={onEnter}>
                 <Mic size={16} />
                 Launch the Interviewer
@@ -273,11 +296,6 @@ export default function LandingPage({ onEnter }: { onEnter: () => void }) {
         </section>
 
         <footer className="lp-footer">
-          <div className="lp-footer-logo">
-            <span className="lp-logo-mark lp-logo-mark-sm">G</span>
-            <span>GenAI Interviewer</span>
-          </div>
-          <p className="lp-footer-tagline">Practice smarter. Interview better.</p>
           <p className="lp-footer-powered">
             Built with React · Groq Whisper STT · Qwen3.6 27B · Browser TTS
           </p>
