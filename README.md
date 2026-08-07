@@ -10,7 +10,11 @@ Built with a **React 19 + TypeScript** frontend and a **Node.js/Express (TypeScr
 
 > Hosted on Render's free tier — the backend may take up to a minute to wake after inactivity. The landing page pings the server in the background so it's usually warm by the time you start.
 
-https://github.com/user-attachments/assets/26e1f829-82ba-47d4-ae72-aedfc8625eff
+
+
+https://github.com/user-attachments/assets/78d7596b-3aa4-4434-b964-6edb8b084b70
+
+
 
 ---
 
@@ -50,9 +54,11 @@ https://github.com/user-attachments/assets/26e1f829-82ba-47d4-ae72-aedfc8625eff
 | **AI** | Groq Whisper Large v3 (STT), Groq Qwen3.6 27B (reasoning + JSON-mode debrief), dynamic per-session prompt engineering |
 | **Quality** | Vitest, Supertest, Testing Library, Playwright, ESLint 9 + typescript-eslint, Prettier, GitHub Actions CI, npm workspaces |
 
-<img width="1470" height="803" alt="Interview session" src="https://github.com/user-attachments/assets/b360e486-64d9-4eaa-ba81-c2774db75815" />
 
-<img width="1470" height="789" alt="Landing page" src="https://github.com/user-attachments/assets/84b4601b-d1b4-4953-bb3e-047d41d39581" />
+<img width="1470" height="797" alt="Screenshot 2026-08-07 at 5 44 22 PM" src="https://github.com/user-attachments/assets/3300b2b1-3e37-426b-adec-6d23fe8759cd" />
+
+<img width="1469" height="798" alt="Screenshot 2026-08-07 at 5 43 56 PM" src="https://github.com/user-attachments/assets/8757ff4a-1752-48b5-93ed-ca17971ecc9c" />
+
 
 ---
 
