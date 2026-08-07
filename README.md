@@ -42,7 +42,7 @@ https://github.com/user-attachments/assets/78d7596b-3aa4-4434-b964-6edb8b084b70
 - **Debrief and progress tracking** — schema-validated AI session summaries with a readiness rating, a trend chart across past sessions, and exportable Markdown reports.
 - **Configurable interviews** — six topics, three difficulty levels, four interviewer personas, hints on demand, text-input fallback, dark mode, keyboard shortcuts, and an installable PWA.
 - **Production-minded backend** — strict server-side input validation, per-IP rate limiting plus a global daily budget, request timeouts with retries, upstream aborts on client disconnect, and friendly error mapping.
-- **Tested and CI-gated** — 101 Vitest tests (Supertest routes with a mocked Groq SDK, Testing Library components/hooks) plus 10 Playwright e2e tests covering the interview flow, split view, and accessibility; GitHub Actions runs lint, typecheck, tests, build, and e2e on every push.
+- **Tested and CI-gated** — 101 Vitest tests (Supertest routes with a mocked Groq SDK, Testing Library components/hooks) plus 11 Playwright e2e tests covering the interview flow, split view, real PDF resume parsing, and accessibility; GitHub Actions runs lint, typecheck, tests, build, and e2e on every push.
 
 ---
 
