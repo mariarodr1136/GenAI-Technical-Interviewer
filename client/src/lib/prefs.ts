@@ -10,6 +10,9 @@ export interface Prefs {
   jobDescription: string;
   resume: string;
   codeLanguage: "javascript" | "python";
+  /** Width of the controls panel in px, and whether it is collapsed away. */
+  panelWidth: number;
+  panelCollapsed: boolean;
 }
 
 const STORAGE_KEY = "genai_prefs";
@@ -25,7 +28,9 @@ const DEFAULTS: Prefs = {
   darkMode: false,
   jobDescription: "",
   resume: "",
-  codeLanguage: "javascript"
+  codeLanguage: "javascript",
+  panelWidth: 300,
+  panelCollapsed: false
 };
 
 export function loadPrefs(): Prefs {

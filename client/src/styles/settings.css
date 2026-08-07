@@ -92,6 +92,24 @@
 
 .settings-divider { width: 1px; height: 22px; background: var(--line-2); margin: 0 4px; }
 
+/* Collapse toggle — sits at the head of the bar, above the panel it hides. */
+.panel-toggle-btn {
+  min-height: unset;
+  padding: 7px;
+  border-radius: var(--radius-sm);
+  border-color: var(--line-2);
+  background: var(--surface);
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.panel-toggle-btn:hover:not(:disabled) {
+  border-color: var(--teal);
+  color: var(--teal-dark);
+  background: var(--surface);
+  transform: none;
+}
+[data-theme="dark"] .panel-toggle-btn:hover:not(:disabled) { color: var(--teal-light); }
+
 .countdown-pill {
   display: flex;
   align-items: center;

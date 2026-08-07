@@ -1,7 +1,9 @@
 import {
   CheckCircle,
   ChevronDown,
+  ClipboardCheck,
   Code2,
+  PanelLeftClose,
   Keyboard,
   Lightbulb,
   Loader2,
@@ -29,6 +31,8 @@ interface ControlPanelProps {
   isSlowRequest: boolean;
   isLoadingDebrief: boolean;
   sessionStarted: boolean;
+  /** A debrief reviews answers, so an unanswered session just ends. */
+  hasAnswers: boolean;
   recordingSeconds: number;
   audioLevel: number;
   error: string;
@@ -60,6 +64,10 @@ interface ControlPanelProps {
   onRequestHint: () => void;
   onStopGenerating: () => void;
   onReset: () => void;
+  /** Clear the session without a debrief and without saving it. */
+  onDiscard: () => void;
+  /** Slide the panel away, leaving only the rail to bring it back. */
+  onCollapsePanel: () => void;
 }
 
 export function ControlPanel(props: ControlPanelProps) {
@@ -71,6 +79,7 @@ export function ControlPanel(props: ControlPanelProps) {
     isSlowRequest,
     isLoadingDebrief,
     sessionStarted,
+    hasAnswers,
     recordingSeconds,
     audioLevel,
     error,
@@ -142,6 +151,16 @@ export function ControlPanel(props: ControlPanelProps) {
           </p>
           <span>{meterSub}</span>
         </div>
+
+        <button
+          type="button"
+          className="meter-collapse-btn"
+          onClick={props.onCollapsePanel}
+          aria-label="Hide the controls panel"
+          title="Hide controls — widen the transcript"
+        >
+          <PanelLeftClose size={15} aria-hidden="true" />
+        </button>
       </div>
 
       {isRecording && (
@@ -417,22 +436,40 @@ export function ControlPanel(props: ControlPanelProps) {
       >
         {isLoadingDebrief ? (
           <Loader2 className="spin" size={18} aria-hidden="true" />
+        ) : hasAnswers ? (
+          <ClipboardCheck size={18} aria-hidden="true" />
         ) : (
           <RotateCcw size={18} aria-hidden="true" />
         )}
-        {isLoadingDebrief ? "Generating debrief…" : sessionStarted ? "End & Debrief" : "Reset"}
+        {isLoadingDebrief
+          ? "Generating debrief…"
+          : !sessionStarted
+            ? "Reset"
+            : hasAnswers
+              ? "End & Debrief"
+              : "End Interview"}
       </button>
+
+      {/* An escape hatch for a run you would rather not keep: clears the
+          session on the spot, with no debrief and nothing saved to history. */}
+      {sessionStarted && hasAnswers && (
+        <button
+          type="button"
+          className="discard-btn"
+          onClick={props.onDiscard}
+          disabled={isActive || isLoadingDebrief}
+          title="Throw this session away and start over — nothing is saved"
+        >
+          <RotateCcw size={16} aria-hidden="true" />
+          Discard &amp; Restart
+        </button>
+      )}
 
       {error && (
         <p className="error" role="alert">
           {error}
         </p>
       )}
-
-      <p className="kbd-hint">
-        <Keyboard size={13} aria-hidden="true" />
-        <kbd>Space</kbd> record/stop · <kbd>M</kbd> mute · <kbd>Esc</kbd> stop
-      </p>
     </section>
   );
 }

@@ -1,4 +1,16 @@
-import { ArrowLeft, AudioLines, History, Mic, Moon, Sparkles, Sun, Volume2 } from "lucide-react";
+import {
+  ArrowLeft,
+  AudioLines,
+  History,
+  Keyboard,
+  Mic,
+  Moon,
+  PanelLeftOpen,
+  Sparkles,
+  Sun,
+  Volume2
+} from "lucide-react";
+import type { CSSProperties } from "react";
 import { useEffect, useRef, useState } from "react";
 import { ControlPanel } from "./components/ControlPanel.tsx";
 import { ConversationLog } from "./components/ConversationLog.tsx";
@@ -28,6 +40,10 @@ import type { ChatMessage, CodeLanguage, InterviewConfig, SavedSession } from ".
 
 const initialPrefs = loadPrefs();
 
+/** Bounds for the controls panel; narrower than this and the buttons crowd. */
+const MIN_PANEL_WIDTH = 240;
+const MAX_PANEL_WIDTH = 560;
+
 export default function App({ onHome }: { onHome?: () => void }) {
   // ── Config (persisted) ───────────────────────────────────────────────────
   const [topic, setTopic] = useState(initialPrefs.topic);
@@ -41,6 +57,9 @@ export default function App({ onHome }: { onHome?: () => void }) {
   const [jobDescription, setJobDescription] = useState(initialPrefs.jobDescription);
   const [resume, setResume] = useState(initialPrefs.resume);
   const [codeLanguage, setCodeLanguage] = useState<CodeLanguage>(initialPrefs.codeLanguage);
+  const [panelWidth, setPanelWidth] = useState(initialPrefs.panelWidth);
+  const [panelCollapsed, setPanelCollapsed] = useState(initialPrefs.panelCollapsed);
+  const [isResizing, setIsResizing] = useState(false);
 
   // ── Modes ────────────────────────────────────────────────────────────────
   const [isMuted, setIsMuted] = useState(false);
@@ -96,6 +115,8 @@ export default function App({ onHome }: { onHome?: () => void }) {
   const countdown = useCountdown(() => void handleReset());
 
   const sessionStarted = conversation.length > 0;
+  /** Only a session with at least one answer can produce a debrief. */
+  const hasAnswers = conversation.some((m) => m.role === "user");
   const isActive = recorder.isRecording || isProcessing;
 
   const config: InterviewConfig = { topic, difficulty, persona, jobDescription, resume };
@@ -113,7 +134,9 @@ export default function App({ onHome }: { onHome?: () => void }) {
       darkMode,
       jobDescription,
       resume,
-      codeLanguage
+      codeLanguage,
+      panelWidth,
+      panelCollapsed
     });
   }, [
     topic,
@@ -126,7 +149,9 @@ export default function App({ onHome }: { onHome?: () => void }) {
     darkMode,
     jobDescription,
     resume,
-    codeLanguage
+    codeLanguage,
+    panelWidth,
+    panelCollapsed
   ]);
 
   // ── Dark mode ────────────────────────────────────────────────────────────
@@ -335,9 +360,50 @@ export default function App({ onHome }: { onHome?: () => void }) {
     }
   }
 
+  // ── Split view ───────────────────────────────────────────────────────────
+  const clampPanel = (px: number): number =>
+    Math.min(MAX_PANEL_WIDTH, Math.max(MIN_PANEL_WIDTH, Math.round(px)));
+
+  /** Drag the divider. Pointer capture keeps the drag alive over the chat. */
+  function startResize(e: React.PointerEvent<HTMLDivElement>): void {
+    e.preventDefault();
+    const handle = e.currentTarget;
+    const startX = e.clientX;
+    const startWidth = panelWidth;
+    handle.setPointerCapture(e.pointerId);
+    setIsResizing(true);
+
+    const onMove = (ev: PointerEvent): void =>
+      setPanelWidth(clampPanel(startWidth + ev.clientX - startX));
+    const onEnd = (ev: PointerEvent): void => {
+      handle.releasePointerCapture(ev.pointerId);
+      handle.removeEventListener("pointermove", onMove);
+      handle.removeEventListener("pointerup", onEnd);
+      handle.removeEventListener("pointercancel", onEnd);
+      setIsResizing(false);
+    };
+
+    handle.addEventListener("pointermove", onMove);
+    handle.addEventListener("pointerup", onEnd);
+    handle.addEventListener("pointercancel", onEnd);
+  }
+
+  function resizeByKey(e: React.KeyboardEvent<HTMLDivElement>): void {
+    const step = e.shiftKey ? 60 : 20;
+    if (e.key === "ArrowLeft") setPanelWidth((w) => clampPanel(w - step));
+    else if (e.key === "ArrowRight") setPanelWidth((w) => clampPanel(w + step));
+    else if (e.key === "Home") setPanelWidth(MIN_PANEL_WIDTH);
+    else if (e.key === "End") setPanelWidth(MAX_PANEL_WIDTH);
+    else return;
+    e.preventDefault();
+  }
+
   // ── Reset / debrief ──────────────────────────────────────────────────────
   async function handleReset(): Promise<void> {
-    if (conversationRef.current.length === 0) {
+    // A debrief needs at least one answer to review — the server drops the
+    // leading interviewer question, so asking for one before the candidate has
+    // said anything just fails. Nothing to review means end it and be done.
+    if (!conversationRef.current.some((m) => m.role === "user")) {
       doReset();
       return;
     }
@@ -423,8 +489,15 @@ export default function App({ onHome }: { onHome?: () => void }) {
         {/* ── Topbar ──────────────────────────────────────────────────── */}
         <div className="topbar">
           <div className="topbar-left">
-            <p className="eyebrow">AI Interview Practice</p>
-            <h1>GenAI Interviewer</h1>
+            <span className="brand-mark" aria-hidden="true">
+              <Sparkles size={22} strokeWidth={2.2} />
+            </span>
+            <div className="brand-text">
+              <h1>GenAI Interviewer</h1>
+              <p className="brand-tagline">
+                Speak your answers · adaptive follow-ups · instant debrief
+              </p>
+            </div>
           </div>
 
           <div className="topbar-right">
@@ -501,6 +574,11 @@ export default function App({ onHome }: { onHome?: () => void }) {
                 Browser TTS
               </span>
             </div>
+
+            <p className="kbd-hint">
+              <Keyboard size={13} aria-hidden="true" />
+              <kbd>Space</kbd> record/stop · <kbd>M</kbd> mute · <kbd>Esc</kbd> stop
+            </p>
           </div>
         </div>
 
@@ -529,46 +607,90 @@ export default function App({ onHome }: { onHome?: () => void }) {
           onOpenResume={() => setShowResume(true)}
         />
 
-        <div className="interview-layout">
-          <ControlPanel
-            hasMicAccess={recorder.hasMicAccess}
-            isRecording={recorder.isRecording}
-            isProcessing={isProcessing}
-            isSpeaking={tts.isSpeaking}
-            isSlowRequest={isSlowRequest}
-            isLoadingDebrief={isLoadingDebrief}
-            sessionStarted={sessionStarted}
-            recordingSeconds={recorder.seconds}
-            audioLevel={recorder.audioLevel}
-            error={error}
-            isMuted={isMuted}
-            textMode={textMode}
-            codeMode={codeMode}
-            textInput={textInput}
-            codeInput={codeInput}
-            designNotesMode={topic === "system-design"}
-            codeLanguage={codeLanguage}
-            runOutput={runOutput}
-            isRunningCode={isRunningCode}
-            onRequestMicrophone={() => void recorder.requestMicrophone()}
-            onStartRecording={() => void startRecording()}
-            onStopRecording={recorder.stop}
-            onToggleMute={toggleMute}
-            onToggleTextMode={() => {
-              setTextMode((m) => !m);
-              setError("");
-            }}
-            onToggleCodeMode={() => setCodeMode((m) => !m)}
-            onTextInputChange={setTextInput}
-            onCodeInputChange={setCodeInput}
-            onCodeLanguageChange={setCodeLanguage}
-            onRunCode={() => void handleRunCode()}
-            onClearRunOutput={() => setRunOutput("")}
-            onSubmitText={() => void submitText()}
-            onBeginInterview={() => void beginInterview()}
-            onRequestHint={() => void requestHint()}
-            onStopGenerating={stopGenerating}
-            onReset={() => void handleReset()}
+        <div
+          className={[
+            "interview-layout",
+            panelCollapsed ? "panel-collapsed" : "",
+            isResizing ? "resizing" : ""
+          ]
+            .filter(Boolean)
+            .join(" ")}
+          style={{ "--panel-w": `${panelWidth}px` } as CSSProperties}
+        >
+          <div className="panel-slot">
+            <ControlPanel
+              hasMicAccess={recorder.hasMicAccess}
+              isRecording={recorder.isRecording}
+              isProcessing={isProcessing}
+              isSpeaking={tts.isSpeaking}
+              isSlowRequest={isSlowRequest}
+              isLoadingDebrief={isLoadingDebrief}
+              sessionStarted={sessionStarted}
+              hasAnswers={hasAnswers}
+              recordingSeconds={recorder.seconds}
+              audioLevel={recorder.audioLevel}
+              error={error}
+              isMuted={isMuted}
+              textMode={textMode}
+              codeMode={codeMode}
+              textInput={textInput}
+              codeInput={codeInput}
+              designNotesMode={topic === "system-design"}
+              codeLanguage={codeLanguage}
+              runOutput={runOutput}
+              isRunningCode={isRunningCode}
+              onRequestMicrophone={() => void recorder.requestMicrophone()}
+              onStartRecording={() => void startRecording()}
+              onStopRecording={recorder.stop}
+              onToggleMute={toggleMute}
+              onToggleTextMode={() => {
+                setTextMode((m) => !m);
+                setError("");
+              }}
+              onToggleCodeMode={() => setCodeMode((m) => !m)}
+              onTextInputChange={setTextInput}
+              onCodeInputChange={setCodeInput}
+              onCodeLanguageChange={setCodeLanguage}
+              onRunCode={() => void handleRunCode()}
+              onClearRunOutput={() => setRunOutput("")}
+              onSubmitText={() => void submitText()}
+              onBeginInterview={() => void beginInterview()}
+              onRequestHint={() => void requestHint()}
+              onStopGenerating={stopGenerating}
+              onReset={() => void handleReset()}
+              onDiscard={doReset}
+              onCollapsePanel={() => setPanelCollapsed(true)}
+            />
+
+            {/* What is left behind when the panel slides away. */}
+            <div className="control-rail" aria-hidden={!panelCollapsed}>
+              <button
+                type="button"
+                className="rail-btn"
+                onClick={() => setPanelCollapsed(false)}
+                aria-label="Show the controls panel"
+                title="Show controls"
+                tabIndex={panelCollapsed ? 0 : -1}
+              >
+                <PanelLeftOpen size={16} aria-hidden="true" />
+              </button>
+            </div>
+          </div>
+
+          {/* Drag to resize; arrow keys do the same from the keyboard. */}
+          <div
+            className="panel-resizer"
+            role="separator"
+            aria-orientation="vertical"
+            aria-label="Resize the controls panel"
+            aria-valuenow={panelWidth}
+            aria-valuemin={MIN_PANEL_WIDTH}
+            aria-valuemax={MAX_PANEL_WIDTH}
+            tabIndex={0}
+            onPointerDown={startResize}
+            onKeyDown={resizeByKey}
+            onDoubleClick={() => setPanelWidth(300)}
+            title="Drag to resize · double-click to reset"
           />
 
           <ConversationLog

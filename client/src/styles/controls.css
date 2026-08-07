@@ -3,9 +3,10 @@
 
 /* ── Status meter ───────────────────────────────────────────────────────── */
 .meter {
+  position: relative;
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  padding: 14px 16px;
+  padding: 14px 40px 14px 16px;
   background: var(--field);
   display: flex;
   align-items: center;
@@ -22,6 +23,26 @@
   gap: 7px;
 }
 .meter p svg { color: var(--teal); flex-shrink: 0; }
+
+/* Collapse control, tucked into the meter's corner. */
+.meter-collapse-btn {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  min-height: unset;
+  padding: 5px;
+  border-radius: var(--radius-xs);
+  border-color: transparent;
+  background: transparent;
+  color: var(--muted);
+}
+.meter-collapse-btn:hover:not(:disabled) {
+  border-color: var(--line-2);
+  background: var(--surface);
+  color: var(--ink-2);
+  transform: none;
+  box-shadow: none;
+}
 .meter div > span { display: block; margin-top: 3px; color: var(--muted); font-size: 0.78rem; line-height: 1.4; }
 
 .pulse {
@@ -159,6 +180,26 @@
   border-color: var(--coral);
   color: var(--coral);
   background: rgba(239, 68, 68, 0.05);
+  transform: none;
+  box-shadow: none;
+}
+
+/* Quieter than the end button beside it — this one throws work away, so it
+   should never be the thing you hit by reflex. */
+.discard-btn {
+  width: 100%;
+  min-height: 34px;
+  margin-top: 2px;
+  border-color: transparent;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+.discard-btn:hover:not(:disabled) {
+  border-color: var(--line-2);
+  background: var(--field);
+  color: var(--ink-2);
   transform: none;
   box-shadow: none;
 }
