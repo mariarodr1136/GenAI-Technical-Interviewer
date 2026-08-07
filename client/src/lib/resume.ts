@@ -1,5 +1,5 @@
 /** Matches MAX_RESUME_CHARS on the server — keep the two in sync. */
-export const MAX_RESUME_CHARS = 2500;
+export const MAX_RESUME_CHARS = 1200;
 
 /**
  * PDF text extraction is jagged: absolute-positioned fragments, hyphenation,

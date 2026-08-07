@@ -1,6 +1,12 @@
 /* ── Conversation panel ─────────────────────────────────────────────────── */
 .conversation-panel { min-height: 520px; display: flex; flex-direction: column; overflow: hidden; }
 
+/* On desktop the panel is height-capped by the viewport instead (see
+   layout.css) — this floor would push the page taller than one screen. */
+@media (min-width: 861px) {
+  .conversation-panel { min-height: 0; }
+}
+
 .empty-state {
   flex: 1;
   display: flex;
@@ -25,6 +31,14 @@
   background: var(--surface-2);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
+/* Turn count and the session timer travel together at the left of the bar. */
+.toolbar-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: auto;
+}
+
 .turn-count {
   display: inline-flex;
   align-items: center;
@@ -34,7 +48,6 @@
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  margin-right: auto;
 }
 
 /* ── Conversation log ───────────────────────────────────────────────────── */

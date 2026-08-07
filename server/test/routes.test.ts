@@ -82,13 +82,30 @@ describe("POST /api/interview/start", () => {
     expect(params.messages[0].content).toContain("Acme Corp seeks a React engineer");
   });
 
-  it("maps Groq 429 errors to a friendly message", async () => {
+  it("maps a Groq per-minute 429 to a wait-and-retry message", async () => {
     const Groq = (await import("groq-sdk")).default as unknown as {
       APIError: new (message: string, status?: number) => Error;
     };
-    createCompletion.mockRejectedValue(new Groq.APIError("rate limited", 429));
+    createCompletion.mockRejectedValue(
+      new Groq.APIError("Rate limit reached for tokens per minute (TPM)", 429)
+    );
     const res = await request(app).post("/api/interview/start").send({}).expect(429);
-    expect(res.body.error).toMatch(/busy/);
+    expect(res.body.error).toMatch(/at capacity/i);
+    expect(res.body.error).toMatch(/try again/i);
+    expect(res.body.error).not.toMatch(/tomorrow/i);
+  });
+
+  // Same status, different advice: the daily budget will not free up in a minute.
+  it("maps a Groq daily-quota 429 to a come-back-tomorrow message", async () => {
+    const Groq = (await import("groq-sdk")).default as unknown as {
+      APIError: new (message: string, status?: number) => Error;
+    };
+    createCompletion.mockRejectedValue(
+      new Groq.APIError("Rate limit reached for tokens per day (TPD)", 429)
+    );
+    const res = await request(app).post("/api/interview/start").send({}).expect(429);
+    expect(res.body.error).toMatch(/daily/i);
+    expect(res.body.error).toMatch(/tomorrow/i);
   });
 });
 

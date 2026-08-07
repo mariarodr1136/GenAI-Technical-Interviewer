@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { CSSProperties } from "react";
-import { DIFFICULTIES, DURATIONS, formatTime, PERSONAS, TOPICS } from "../constants.ts";
+import { DIFFICULTIES, DURATIONS, PERSONAS, TOPICS } from "../constants.ts";
 
 interface Option {
   value: string | number;
@@ -71,7 +71,6 @@ interface SettingsBarProps {
   textMode: boolean;
   locked: boolean;
   voices: SpeechSynthesisVoice[];
-  countdownSeconds: number;
   hasJobDescription: boolean;
   hasResume: boolean;
   onTopicChange: (v: string) => void;
@@ -201,17 +200,6 @@ export function SettingsBar(props: SettingsBarProps) {
           <span>Hands-free</span>
         </label>
       </div>
-
-      {props.countdownSeconds > 0 && (
-        <div
-          className={`countdown-pill ${props.countdownSeconds <= 60 ? "urgent" : ""}`}
-          role="timer"
-          aria-label="Session time remaining"
-        >
-          <Timer size={13} aria-hidden="true" />
-          {formatTime(props.countdownSeconds)}
-        </div>
-      )}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 # GenAI Technical Interviewer 🎙️
 
-[![CI](https://github.com/mariarodr1136/GenAI-Technical-Interviewer/actions/workflows/ci.yml/badge.svg)](https://github.com/mariarodr1136/GenAI-Technical-Interviewer/actions/workflows/ci.yml) ![TypeScript](https://img.shields.io/badge/TypeScript-Strict-3178C6) ![React](https://img.shields.io/badge/React_19-Frontend-61DAFB) ![Node.js](https://img.shields.io/badge/Node.js_22-Backend-339933) ![Express](https://img.shields.io/badge/Express_5-API-000000) ![Groq](https://img.shields.io/badge/Groq-Whisper_+_Qwen3.6-F55036) ![Vitest](https://img.shields.io/badge/Vitest-93_tests-6E9F18)
+[![CI](https://github.com/mariarodr1136/GenAI-Technical-Interviewer/actions/workflows/ci.yml/badge.svg)](https://github.com/mariarodr1136/GenAI-Technical-Interviewer/actions/workflows/ci.yml) ![TypeScript](https://img.shields.io/badge/TypeScript-Strict-3178C6) ![React](https://img.shields.io/badge/React_19-Frontend-61DAFB) ![Node.js](https://img.shields.io/badge/Node.js_22-Backend-339933) ![Express](https://img.shields.io/badge/Express_5-API-000000) ![Groq](https://img.shields.io/badge/Groq-Whisper_+_Qwen3.6-F55036) ![Vitest](https://img.shields.io/badge/Vitest-101_tests-6E9F18)
 
 A voice-driven mock technical interviewer. Answer questions aloud, attach and run real code, and get spoken AI follow-ups in real time — the interviewer's replies stream from the LLM and are spoken sentence-by-sentence as they arrive. Sessions end with a structured debrief: strengths, areas to improve, and a readiness rating tracked across sessions.
 
@@ -21,6 +21,7 @@ https://github.com/user-attachments/assets/26e1f829-82ba-47d4-ae72-aedfc8625eff
 - [Getting Started](#getting-started)
 - [Project Structure](#project-structure)
 - [API Overview](#api-overview)
+- [Limits & Guardrails](#limits--guardrails)
 - [Deployment](#deployment)
 - [Contributing](#contributing)
 - [Contact](#contact-)
@@ -35,8 +36,8 @@ https://github.com/user-attachments/assets/26e1f829-82ba-47d4-ae72-aedfc8625eff
 - **Structured interview formats** — system design sessions follow real phases (requirements → high-level design → deep dive → trade-offs); behavioral sessions coach the STAR method and push for measurable results.
 - **Debrief and progress tracking** — schema-validated AI session summaries with a readiness rating, a trend chart across past sessions, and exportable Markdown reports.
 - **Configurable interviews** — six topics, three difficulty levels, four interviewer personas, hints on demand, text-input fallback, dark mode, keyboard shortcuts, and an installable PWA.
-- **Production-minded backend** — strict server-side input validation, per-IP rate limiting, request timeouts with retries, upstream aborts on client disconnect, and friendly error mapping.
-- **Tested and CI-gated** — 93 Vitest tests (Supertest routes with a mocked Groq SDK, Testing Library components/hooks) plus a Playwright e2e smoke test; GitHub Actions runs lint, typecheck, tests, build, and e2e on every push.
+- **Production-minded backend** — strict server-side input validation, per-IP rate limiting plus a global daily budget, request timeouts with retries, upstream aborts on client disconnect, and friendly error mapping.
+- **Tested and CI-gated** — 101 Vitest tests (Supertest routes with a mocked Groq SDK, Testing Library components/hooks) plus 10 Playwright e2e tests covering the interview flow, split view, and accessibility; GitHub Actions runs lint, typecheck, tests, build, and e2e on every push.
 
 ---
 
@@ -123,7 +124,10 @@ GenAI Technical Interviewer/
 
 ## API Overview
 
-All `/api` routes are rate-limited to 30 requests per 15-minute window per IP. `topic`, `difficulty`, and `persona` are whitelist-validated server-side; `jobDescription`, `resume`, and `code` are length-capped.
+All `/api` routes are rate-limited per IP, and the interview routes also draw on a
+global daily budget — see [Limits & Guardrails](#limits--guardrails). `topic`,
+`difficulty`, and `persona` are whitelist-validated server-side; `jobDescription`,
+`resume`, and `code` are length-capped.
 
 | Endpoint | Method | Description |
 |---|---|---|
@@ -168,6 +172,63 @@ Shared optional fields on `start`, `turn`, and `text-turn`: `topic` (`general`, 
 
 ---
 
+## Limits & Guardrails
+
+This runs on free tiers, so capacity is finite and the app is built to say so clearly
+rather than fail obscurely.
+
+### What the server enforces
+
+| Guardrail | Value | Where |
+|---|---|---|
+| Per-IP rate limit | 30 requests / 15 min | `server/src/app.ts` |
+| Global daily budget | `DAILY_API_BUDGET` (default 150 interview calls/day, all visitors) | `server/src/app.ts` |
+| Job description | 1000 chars | `server/src/config/constants.ts` |
+| Resume | 1200 chars | `server/src/config/constants.ts` |
+| Attached code | 4000 chars | `server/src/config/constants.ts` |
+| Typed answer | 8000 chars | `server/src/config/constants.ts` |
+| Audio upload | 25 MB | `server/src/middleware/upload.ts` |
+| Request body | 1 MB | `server/src/app.ts` |
+| Upstream call | 45s timeout, 2 retries, aborted if the client disconnects | `server/src/services/groqService.ts` |
+
+`/api/health` sits outside both limiters so the landing page can still wake a sleeping
+server. The job description and resume are re-sent to the model on every turn, so their
+caps are deliberately tight — their size multiplies across a session.
+
+### What the provider enforces
+
+Groq's free tier is the real ceiling. On the models this project uses:
+
+| Model | Requests/min | Requests/day | Tokens/min | Tokens/day |
+|---|---|---|---|---|
+| `qwen/qwen3.6-27b` | 30 | 1K | 8K | **200K** |
+| `whisper-large-v3` | 20 | 2K | 7.2K audio-sec/hour | 28.8K audio-sec/day |
+
+The daily **token** budget binds first. A turn costs roughly 2.2K tokens (system prompt +
+history window + answer + reply), so a full interview with its debrief lands near 30K.
+In practice that is about **6–7 complete interviews per day**, and the 8K tokens/minute
+ceiling means roughly **two people can interview simultaneously** before a third starts
+getting 429s. Speech-to-text is not the constraint — 28.8K audio-seconds is around eight
+hours of talking.
+
+### How limits surface to the visitor
+
+Groq returns 429 both for the per-minute throttle and for an exhausted daily quota, which
+need different advice, so `friendlyError` tells them apart:
+
+- per-minute → *"A lot of people are practicing right now… wait about a minute and try again — your session is still here."*
+- daily quota → *"This free practice server has hit its daily AI limit… please come back tomorrow."*
+
+The global budget produces the same come-back-tomorrow message before a request ever
+reaches Groq.
+
+### Raising the ceiling
+
+Move to a paid Groq tier and raise `DAILY_API_BUDGET` to match. Nothing else needs to
+change — the guardrails are all configuration or constants.
+
+---
+
 ## Deployment
 
 The frontend and backend deploy separately:
@@ -183,7 +244,12 @@ CLIENT_ORIGIN=https://your-frontend-url.com   # allowed CORS origin
 GROQ_API_KEY=gsk_your_key_here                # server-only secret
 GROQ_STT_MODEL=whisper-large-v3
 GROQ_LLM_MODEL=qwen/qwen3.6-27b
+DAILY_API_BUDGET=150                          # interview API calls/day, all visitors
 ```
+
+`DAILY_API_BUDGET` is a backstop shared by everyone, sized just above where a
+free-tier daily token budget runs out (a full interview is roughly 14 calls).
+Raise it when your provider plan allows more.
 
 ---
 

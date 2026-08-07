@@ -593,7 +593,6 @@ export default function App({ onHome }: { onHome?: () => void }) {
           textMode={textMode}
           locked={isActive || sessionStarted}
           voices={tts.availableVoices}
-          countdownSeconds={countdown.secondsLeft}
           hasJobDescription={Boolean(jobDescription)}
           hasResume={Boolean(resume)}
           onTopicChange={setTopic}
@@ -695,6 +694,7 @@ export default function App({ onHome }: { onHome?: () => void }) {
 
           <ConversationLog
             conversation={conversation}
+            countdownSeconds={countdown.secondsLeft}
             currentTranscript={currentTranscript}
             streamingReply={streamingReply}
           />

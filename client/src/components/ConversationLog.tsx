@@ -6,9 +6,11 @@ import {
   Lightbulb,
   MessageSquare,
   MessagesSquare,
+  Timer,
   UserRound
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { formatTime } from "../constants.ts";
 import type { ChatMessage } from "../types.ts";
 
 /** Speaker label for a turn — icon plus name. */
@@ -48,18 +50,23 @@ interface ConversationLogProps {
   conversation: ChatMessage[];
   currentTranscript: string;
   streamingReply: string;
+  /** Seconds left on a timed session; 0 when untimed. */
+  countdownSeconds: number;
 }
 
 export function ConversationLog({
   conversation,
   currentTranscript,
-  streamingReply
+  streamingReply,
+  countdownSeconds
 }: ConversationLogProps) {
   const [copied, setCopied] = useState(false);
   const endRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: "smooth" });
+    // "nearest" keeps the scroll inside the transcript; the default would also
+    // scroll the page itself, dragging the header out of view.
+    endRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, [conversation, streamingReply]);
 
   function copyTranscript(): void {
@@ -98,10 +105,23 @@ export function ConversationLog({
     <section className="conversation-panel" aria-label="Interview transcript">
       {conversation.length > 0 && (
         <div className="conversation-toolbar">
-          <span className="turn-count">
-            <MessagesSquare size={13} aria-hidden="true" />
-            {userTurns} turn{userTurns !== 1 ? "s" : ""}
-          </span>
+          <div className="toolbar-meta">
+            <span className="turn-count">
+              <MessagesSquare size={13} aria-hidden="true" />
+              {userTurns} turn{userTurns !== 1 ? "s" : ""}
+            </span>
+
+            {countdownSeconds > 0 && (
+              <div
+                className={`countdown-pill ${countdownSeconds <= 60 ? "urgent" : ""}`}
+                role="timer"
+                aria-label="Session time remaining"
+              >
+                <Timer size={13} aria-hidden="true" />
+                {formatTime(countdownSeconds)}
+              </div>
+            )}
+          </div>
           <button
             type="button"
             className="icon-btn"

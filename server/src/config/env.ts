@@ -8,7 +8,10 @@ export const env = {
   llmModel: process.env.GROQ_LLM_MODEL ?? "qwen/qwen3.6-27b",
   // Qwen3.6 is a reasoning model; "none" disables <think> output so replies are
   // fast and clean. Set GROQ_REASONING_EFFORT to "" for non-reasoning models.
-  reasoningEffort: process.env.GROQ_REASONING_EFFORT ?? "none"
+  reasoningEffort: process.env.GROQ_REASONING_EFFORT ?? "none",
+  // Interview API calls allowed per day across all visitors. Raise it when the
+  // provider plan allows more; see the daily budget note in app.ts.
+  dailyApiBudget: Number(process.env.DAILY_API_BUDGET ?? 150)
 };
 
 export function validateEnv(): void {

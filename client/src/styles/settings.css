@@ -121,7 +121,6 @@
   font-weight: 700;
   color: var(--teal-dark);
   background: rgba(13, 148, 136, 0.08);
-  margin-left: auto;
 }
 .countdown-pill.urgent {
   border-color: rgba(239, 68, 68, 0.4);

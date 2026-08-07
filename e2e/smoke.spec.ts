@@ -165,3 +165,59 @@ test("the controls panel can be resized and collapsed", async ({ page }) => {
   await expect(panel).toBeVisible();
   await expect.poll(async () => (await panel.boundingBox())!.width).toBe(560);
 });
+
+// A long interview used to grow the page, pushing the header and controls off
+// the top. On desktop the app is now capped to the viewport and the transcript
+// scrolls inside its own frame; phones keep ordinary page scrolling.
+test("a long conversation scrolls inside the transcript, not the page", async ({ page }) => {
+  await page.route("**/api/health", (route) => route.fulfill({ json: { status: "ok" } }));
+  await page.route("**/api/interview/start", (route) =>
+    route.fulfill({ json: { question: "Welcome! Tell me about a project you are proud of." } })
+  );
+  let turn = 0;
+  await page.route("**/api/interview/text-turn", (route) => {
+    turn += 1;
+    return route.fulfill({
+      contentType: "text/event-stream",
+      body: [
+        `data: {"transcript":"Answer ${turn}, long enough that the bubble takes real height on screen."}`,
+        "",
+        `data: {"done":true,"reply":"Reply ${turn}. A follow-up question with enough words to fill a couple of lines."}`,
+        "",
+        ""
+      ].join("\n")
+    });
+  });
+
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto("/");
+  await page.getByRole("button", { name: /start practicing free/i }).click();
+  await page.getByRole("button", { name: /voice on/i }).click();
+  await page.getByRole("button", { name: /begin interview/i }).click();
+  await page.getByRole("button", { name: "Type" }).click();
+
+  for (let i = 1; i <= 6; i += 1) {
+    await page.getByPlaceholder(/type your answer/i).fill(`Answer ${i}`);
+    await page.getByRole("button", { name: /submit answer/i }).click();
+    await expect(page.getByText(`Reply ${i}.`)).toBeVisible();
+  }
+
+  const desktop = await page.evaluate(() => {
+    const log = document.querySelector(".conversation-log")!;
+    return {
+      viewport: window.innerHeight,
+      page: document.documentElement.scrollHeight,
+      logScroll: log.scrollHeight,
+      logClient: log.clientHeight,
+      headerTop: document.querySelector(".topbar")!.getBoundingClientRect().top
+    };
+  });
+  expect(desktop.page).toBeLessThanOrEqual(desktop.viewport + 1);
+  expect(desktop.logScroll).toBeGreaterThan(desktop.logClient);
+  expect(desktop.headerTop).toBeGreaterThanOrEqual(0);
+
+  await page.setViewportSize({ width: 600, height: 800 });
+  await expect
+    .poll(async () => page.evaluate(() => document.documentElement.scrollHeight))
+    .toBeGreaterThan(800);
+});

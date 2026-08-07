@@ -2,7 +2,8 @@ import { Briefcase, X } from "lucide-react";
 import { useState } from "react";
 import { Modal } from "./Modal.tsx";
 
-const MAX_CHARS = 2000;
+/** Matches MAX_JOB_DESCRIPTION_CHARS on the server — keep the two in sync. */
+const MAX_CHARS = 1000;
 
 interface JobDescriptionModalProps {
   value: string;
