@@ -15,7 +15,11 @@ import {
   Zap
 } from "lucide-react";
 import { useEffect, useRef } from "react";
+import useSectionSnap from "./hooks/useSectionSnap.ts";
 import { warmServer } from "./lib/api.ts";
+
+/** Scroll snaps move between these, one gesture at a time. */
+const SECTION_IDS = ["lp-hero", "lp-features", "lp-how", "lp-topics"];
 
 const FEATURES = [
   {
@@ -73,6 +77,8 @@ const TOPICS = ["Algorithms", "System Design", "Frontend", "Backend", "Behaviora
 export default function LandingPage({ onEnter }: { onEnter: () => void }) {
   const featuresRef = useRef<HTMLDivElement | null>(null);
 
+  useSectionSnap(SECTION_IDS);
+
   // The backend runs on a free tier that sleeps when idle. Pinging it while
   // the visitor reads the landing page means the interview starts warm.
   useEffect(() => {
@@ -90,7 +96,7 @@ export default function LandingPage({ onEnter }: { onEnter: () => void }) {
   return (
     <div className="lp-root">
       {/* ── Hero ────────────────────────────────────────────────────────── */}
-      <section className="lp-hero">
+      <section className="lp-hero lp-panel" id="lp-hero">
         <div className="lp-hero-inner">
           <div className="lp-eyebrow">
             <Zap size={13} />
@@ -149,7 +155,7 @@ export default function LandingPage({ onEnter }: { onEnter: () => void }) {
       </section>
 
       {/* ── Features ────────────────────────────────────────────────────── */}
-      <section className="lp-section lp-features-section">
+      <section className="lp-section lp-features-section lp-panel" id="lp-features">
         <div className="lp-section-inner">
           <div className="lp-section-header">
             <p className="lp-section-eyebrow">Why GenAI Interviewer</p>
@@ -200,7 +206,7 @@ export default function LandingPage({ onEnter }: { onEnter: () => void }) {
       </section>
 
       {/* ── How it works ────────────────────────────────────────────────── */}
-      <section className="lp-section lp-how-section">
+      <section className="lp-section lp-how-section lp-panel" id="lp-how">
         <div className="lp-section-inner">
           <div className="lp-section-header">
             <p className="lp-section-eyebrow">How It Works</p>
@@ -221,63 +227,62 @@ export default function LandingPage({ onEnter }: { onEnter: () => void }) {
         </div>
       </section>
 
-      {/* ── Topics ──────────────────────────────────────────────────────── */}
-      <section className="lp-section lp-topics-section">
-        <div className="lp-section-inner">
-          <div className="lp-section-header">
-            <p className="lp-section-eyebrow">Topic Coverage</p>
-            <h2 className="lp-h2">Practice any area, any time</h2>
-            <p className="lp-section-sub">
-              Six topic tracks · three difficulty levels · four interviewer styles
-            </p>
+      {/* ── Topics + CTA + footer (one snap panel) ──────────────────────── */}
+      <div className="lp-panel lp-end-panel" id="lp-topics">
+        <section className="lp-section lp-topics-section">
+          <div className="lp-section-inner">
+            <div className="lp-section-header">
+              <p className="lp-section-eyebrow">Topic Coverage</p>
+              <h2 className="lp-h2">Practice any area, any time</h2>
+              <p className="lp-section-sub">
+                Six topic tracks · three difficulty levels · four interviewer styles
+              </p>
+            </div>
+
+            <div className="lp-topics-grid">
+              {TOPICS.map((label) => (
+                <div key={label} className="lp-topic-card">
+                  <span>{label}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="lp-topics-perks">
+              {[
+                { icon: Volume2, text: "Voice or text input" },
+                { icon: Shield, text: "Runs in your browser — no data stored" },
+                { icon: Sparkles, text: "Hint system to get unstuck" }
+              ].map(({ icon: Icon, text }) => (
+                <div key={text} className="lp-perk">
+                  <Icon size={16} />
+                  <span>{text}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* CTA lives on this panel so the closing screen isn't half empty. */}
+            <div className="lp-cta-inner">
+              <p className="lp-cta-label">No signup. No cost. No limits.</p>
+              <button className="lp-cta-launch-btn" onClick={onEnter}>
+                <Mic size={16} />
+                Launch the Interviewer
+                <ArrowRight size={15} />
+              </button>
+            </div>
           </div>
+        </section>
 
-          <div className="lp-topics-grid">
-            {TOPICS.map((label) => (
-              <div key={label} className="lp-topic-card">
-                <span>{label}</span>
-              </div>
-            ))}
+        <footer className="lp-footer">
+          <div className="lp-footer-logo">
+            <span className="lp-logo-mark lp-logo-mark-sm">G</span>
+            <span>GenAI Interviewer</span>
           </div>
-
-          <div className="lp-topics-perks">
-            {[
-              { icon: Volume2, text: "Voice or text input" },
-              { icon: Shield, text: "Runs in your browser — no data stored" },
-              { icon: Sparkles, text: "Hint system to get unstuck" }
-            ].map(({ icon: Icon, text }) => (
-              <div key={text} className="lp-perk">
-                <Icon size={16} />
-                <span>{text}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── CTA banner ──────────────────────────────────────────────────── */}
-      <section className="lp-cta-banner">
-        <div className="lp-cta-inner">
-          <p className="lp-cta-label">No signup. No cost. No limits.</p>
-          <button className="lp-cta-launch-btn" onClick={onEnter}>
-            <Mic size={16} />
-            Launch the Interviewer
-            <ArrowRight size={15} />
-          </button>
-        </div>
-      </section>
-
-      {/* ── Footer ──────────────────────────────────────────────────────── */}
-      <footer className="lp-footer">
-        <div className="lp-footer-logo">
-          <span className="lp-logo-mark lp-logo-mark-sm">G</span>
-          <span>GenAI Interviewer</span>
-        </div>
-        <p className="lp-footer-tagline">Practice smarter. Interview better.</p>
-        <p className="lp-footer-powered">
-          Built with React · Groq Whisper STT · Qwen3.6 27B · Browser TTS
-        </p>
-      </footer>
+          <p className="lp-footer-tagline">Practice smarter. Interview better.</p>
+          <p className="lp-footer-powered">
+            Built with React · Groq Whisper STT · Qwen3.6 27B · Browser TTS
+          </p>
+        </footer>
+      </div>
     </div>
   );
 }
