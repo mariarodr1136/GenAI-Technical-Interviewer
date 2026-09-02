@@ -565,7 +565,7 @@ export default function App({ onHome }: { onHome?: () => void }) {
                 }
               >
                 <Sparkles size={11} aria-hidden="true" />
-                Qwen3.6
+                Qwen3.8
               </span>
               <span
                 className={tts.isSpeaking ? "signal active" : !isMuted ? "signal ready" : "signal"}

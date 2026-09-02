@@ -1,10 +1,10 @@
 # GenAI Technical Interviewer 🎙️
 
-[![CI](https://github.com/mariarodr1136/GenAI-Technical-Interviewer/actions/workflows/ci.yml/badge.svg)](https://github.com/mariarodr1136/GenAI-Technical-Interviewer/actions/workflows/ci.yml) ![TypeScript](https://img.shields.io/badge/TypeScript-Strict-3178C6) ![React](https://img.shields.io/badge/React_19-Frontend-61DAFB) ![Node.js](https://img.shields.io/badge/Node.js_22-Backend-339933) ![Express](https://img.shields.io/badge/Express_5-API-000000) ![Groq](https://img.shields.io/badge/Groq-Whisper_+_Qwen3.6-F55036) ![Vitest](https://img.shields.io/badge/Vitest-101_tests-6E9F18)
+[![CI](https://github.com/mariarodr1136/GenAI-Technical-Interviewer/actions/workflows/ci.yml/badge.svg)](https://github.com/mariarodr1136/GenAI-Technical-Interviewer/actions/workflows/ci.yml) ![TypeScript](https://img.shields.io/badge/TypeScript-Strict-3178C6) ![React](https://img.shields.io/badge/React_19-Frontend-61DAFB) ![Node.js](https://img.shields.io/badge/Node.js_22-Backend-339933) ![Express](https://img.shields.io/badge/Express_5-API-000000) ![Groq](https://img.shields.io/badge/Groq-Whisper_+_Qwen3.8-F55036) ![Vitest](https://img.shields.io/badge/Vitest-101_tests-6E9F18)
 
 A voice-driven mock technical interviewer. Answer questions aloud, attach and run real code, and get spoken AI follow-ups in real time — the interviewer's replies stream from the LLM and are spoken sentence-by-sentence as they arrive. Sessions end with a structured debrief: strengths, areas to improve, and a readiness rating tracked across sessions.
 
-Built with a **React 19 + TypeScript** frontend and a **Node.js/Express (TypeScript)** backend, using **Groq Whisper Large v3** for speech-to-text, **Groq Qwen3.6 27B** for interviewer reasoning, and the browser's native **Web Speech API** for text-to-speech — a deliberately free-tier-friendly architecture with no paid TTS and no database.
+Built with a **React 19 + TypeScript** frontend and a **Node.js/Express (TypeScript)** backend, using **Groq Whisper Large v3** for speech-to-text, **Groq Qwen3.8 27B** for interviewer reasoning, and the browser's native **Web Speech API** for text-to-speech — a deliberately free-tier-friendly architecture with no paid TTS and no database.
 
 **Live app:** https://genai-technical-interviewer-1.onrender.com/
 
@@ -52,7 +52,7 @@ https://github.com/user-attachments/assets/78d7596b-3aa4-4434-b964-6edb8b084b70
 |---|---|
 | **Frontend** | React 19, TypeScript (strict), Vite, custom hooks (`useRecorder`, `useTTS`, `useCountdown`), MediaRecorder + Web Audio + Web Speech APIs, pdf.js, Web Workers + Pyodide |
 | **Backend** | Node.js 22 + TypeScript (native type stripping, zero build step), Express 5, Multer, express-rate-limit, Groq SDK |
-| **AI** | Groq Whisper Large v3 (STT), Groq Qwen3.6 27B (reasoning + JSON-mode debrief), dynamic per-session prompt engineering |
+| **AI** | Groq Whisper Large v3 (STT), Groq Qwen3.8 27B (reasoning + JSON-mode debrief), dynamic per-session prompt engineering |
 | **Quality** | Vitest, Supertest, Testing Library, Playwright, ESLint 9 + typescript-eslint, Prettier, GitHub Actions CI, npm workspaces |
 
 
@@ -213,7 +213,7 @@ Groq's free tier is the real ceiling. On the models this project uses:
 
 | Model | Requests/min | Requests/day | Tokens/min | Tokens/day |
 |---|---|---|---|---|
-| `qwen/qwen3.6-27b` | 30 | 1K | 8K | **200K** |
+| `qwen/qwen3.8-27b` | 30 | 1K | 8K | **200K** |
 | `whisper-large-v3` | 20 | 2K | 7.2K audio-sec/hour | 28.8K audio-sec/day |
 
 The daily **token** budget binds first. A turn costs roughly 2.2K tokens (system prompt +
@@ -255,8 +255,8 @@ PORT=8080
 CLIENT_ORIGIN=https://your-frontend-url.com   # allowed CORS origin
 GROQ_API_KEY=gsk_your_key_here                # server-only secret
 GROQ_STT_MODEL=whisper-large-v3
-GROQ_LLM_MODEL=qwen/qwen3.6-27b
-GROQ_REASONING_EFFORT=none                    # Qwen3.6 is a reasoning model; leaks <think> without this
+GROQ_LLM_MODEL=qwen/qwen3.8-27b
+GROQ_REASONING_EFFORT=none                    # Qwen3.8 is a reasoning model; leaks <think> without this
 DAILY_API_BUDGET=150                          # interview API calls/day, all visitors
 ```
 

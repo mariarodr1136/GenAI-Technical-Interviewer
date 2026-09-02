@@ -5,7 +5,7 @@ const bannedWordReplacements: Array<[RegExp, string]> = [
 ];
 
 /**
- * Reasoning models (e.g. Qwen3.6) can emit <think>…</think> blocks. We disable
+ * Reasoning models (e.g. Qwen3.8) can emit <think>…</think> blocks. We disable
  * reasoning via the API, but strip any that slip through — including an
  * unterminated block from a response truncated mid-thought.
  */
