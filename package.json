@@ -4,6 +4,9 @@
   "private": true,
   "type": "module",
   "description": "A free-tier GenAI technical interviewer using React, Express, Groq STT, Groq LLM, and browser speech synthesis.",
+  "engines": {
+    "node": "^22.23.4"
+  },
   "workspaces": [
     "client",
     "server"
